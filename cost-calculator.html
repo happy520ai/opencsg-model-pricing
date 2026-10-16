@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCSG 月成本计算器 · 用实时接口报价</title>
+<meta name="description" content="输入你每月的输入/输出 token 量，直接按 OpenCSG /v1/models 实时返回的单价算出每个模型的月成本并排序。价格现场拉取，不是静态表。">
+<meta property="og:title" content="OpenCSG 月成本计算器 · 用实时接口报价">
+<meta property="og:description" content="填你自己的 token 量，按实时单价算月成本并排序；缓存命中率会改变名次。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://happy520ai.github.io/opencsg-model-pricing/cost-calculator.html">
+<meta property="og:image" content="https://happy520ai.github.io/opencsg-model-pricing/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://happy520ai.github.io/opencsg-model-pricing/og-image.png">
+<style>
+:root{--bg:#0b0d10;--fg:#e8eaf0;--mut:#98a2b3;--card:#12161c;--line:#222932;--acc:#4ee1a0;--warn:#ffb454}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 70px}
+h1{font-size:27px;margin:6px 0 8px}
+h2{font-size:19px;margin:28px 0 10px}
+a{color:var(--acc)}
+.sub{color:var(--mut);font-size:15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:16px 0}
+label{display:block;font-size:13.5px;color:var(--mut);margin:12px 0 4px}
+input[type=number]{width:100%;background:#080a0d;color:var(--fg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:15px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th,td{text-align:right;padding:8px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-size:12.5px;cursor:pointer;user-select:none}
+tr.best td{background:rgba(78,225,160,.09);font-weight:700}
+button{background:#080a0d;color:var(--acc);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;margin:4px 6px 0 0}
+button.on{border-color:var(--acc)}
+.discl{background:#2a1f0d;border:1px solid #4d3a15;color:#ffd79a;font-size:13px;padding:9px 12px;border-radius:10px;margin:14px 0}
+code{font-family:"Cascadia Mono",Consolas,monospace;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="sub"><a href="./">← 返回实测价格表</a></p>
+<h1>OpenCSG 月成本计算器</h1>
+<p class="sub">单价不是写死的：本页打开时直接 <code>GET https://ai.space.opencsg.com/v1/models</code>（免登录、免 key），用返回值算。你换一台机器打开，看到的报价就是那一台的。</p>
+<div class="discl">广告 / 利益披露：本页含个人邀请码链接，有人经它注册我会获得平台奖励。计算逻辑与邀请码无关。</div>
+
+<div class="card">
+<h2 style="margin-top:0">你的月用量</h2>
+<div class="grid">
+  <div><label>输入 token / 月（百万）</label><input type="number" id="mIn" value="20" min="0" step="1"></div>
+  <div><label>其中命中缓存的比例 %</label><input type="number" id="mCache" value="0" min="0" max="100" step="5"></div>
+  <div><label>输出 token / 月（百万）</label><input type="number" id="mOut" value="5" min="0" step="1"></div>
+</div>
+<p class="sub" style="margin-bottom:0">缓存价来自接口 <code>cached_price_per_million</code>；没公布缓存价的模型按输入价计，并在表里标 <code>-</code>。</p>
+<div style="margin-top:10px">
+  <button data-f="chat" class="on">只看对话模型</button>
+  <button data-f="all">全部（含 embedding/rerank/guard）</button>
+  <button id="re">重新拉取实时价</button>
+</div>
+</div>
+
+<div class="card">
+<h2 style="margin-top:0">月成本（元），按你输入的用量排序</h2>
+<p class="sub" id="status">加载中…</p>
+<table><thead><tr>
+<th>模型</th><th>输入价</th><th>缓存价</th><th>输出价</th><th>月成本</th><th>相对最贵</th>
+</tr></thead><tbody id="tb"></tbody></table>
+<p class="sub" id="incomplete-note" hidden style="color:var(--warn)">表尾标黄的模型<strong>没有公布输出单价</strong>。它们不参与排名——把它们当「输出免费」来比价，会凭空造出一个假的最低价。</p>
+<p class="sub">「相对最贵」= 该模型成本 ÷ 同列表最贵模型成本。跨模型比价时，缓存命中率会显著改变名次，所以把它做成输入项而不是塞进静态表。</p>
+</div>
+
+<h2>这个表怎么自己复现</h2>
+<div class="card"><pre style="background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:14px;overflow:auto;margin:0"><code>curl -s https://ai.space.opencsg.com/v1/models \
+| node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{
+  const p=JSON.parse(d).data.filter(m=>m.metadata?.pricing);
+  p.map(m=>[m.id, m.metadata.pricing.input_token_price.price_per_million,
+             m.metadata.pricing.output_token_price?.price_per_million])
+   .sort((a,b)=>a[1]-b[1]).forEach(r=>console.log(r.join("\t")));
+});'</code></pre>
+<p class="sub">清单会实时上下架（我同一天读到 25 条与 24 条两次），任何静态截图都会过期。</p></div>
+
+<p class="sub">要注册的话 <a href="https://opencsg.com/signup?invitationCode=7OV90VFJG1" rel="nofollow sponsored">这个链接带我的邀请码</a>，新人 50 元额度。<strong>模型保真度我未验证</strong>——我没有 key，没发过一次 chat 请求；本页只证明「接口公布了这个价」，不证明「它给的是真权重」。</p>
+</div>
+
+<script>
+const ENDPOINT = 'https://ai.space.opencsg.com/v1/models';
+let MODELS = [];
+let filter = 'chat';
+
+const NON_CHAT = /guard|rerank|embed|asr|audio|image|whisper/i;
+const isChat = m => m.task === 'text-generation' && !NON_CHAT.test(m.id);
+const num = id => Number(document.getElementById(id).value) || 0;
+
+async function load() {
+  const st = document.getElementById('status');
+  st.textContent = '正在拉取实时价…';
+  try {
+    const t0 = performance.now();
+    const res = await fetch(ENDPOINT, { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    MODELS = (j.data || []).filter(m => m?.metadata?.pricing?.input_token_price);
+    if (MODELS.length === 0) throw new Error('接口返回 0 条带价模型');
+    st.textContent = '实时价已载入：' + MODELS.length + ' 条带价模型（' +
+      Math.round(performance.now() - t0) + 'ms）· ' + new Date().toLocaleString('zh-CN');
+    render();
+  } catch (e) {
+    MODELS = [];
+    st.textContent = '取不到实时价（' + e.message + '）——本页拒绝用旧快照冒充今日报价，' +
+      '所以表格留空。可用终端 curl 复核，或点「重新拉取实时价」。';
+    document.getElementById('tb').innerHTML = '';
+  }
+}
+
+function render() {
+  const mIn = num('mIn'), mOut = num('mOut');
+  const cacheRatio = Math.min(Math.max(num('mCache') / 100, 0), 1);
+  const list = MODELS.filter(m => filter === 'all' || isChat(m));
+
+  const priced = [];
+  const incomplete = [];
+  list.forEach(m => {
+    const p = m.metadata.pricing;
+    const inp = p.input_token_price.price_per_million;
+    const outp = p.output_token_price?.price_per_million ?? null;
+    const cached = p.input_token_price.cached_price_per_million ?? null;
+    if (outp === null) { incomplete.push({ id: m.id, inp, cached }); return; }
+    const effIn = cached === null ? inp : inp * (1 - cacheRatio) + cached * cacheRatio;
+    priced.push({ id: m.id, inp, cached, outp, cost: mIn * effIn + mOut * outp });
+  });
+  priced.sort((a, b) => a.cost - b.cost);
+
+  const worst = priced.length ? priced[priced.length - 1].cost : 0;
+  const cell = r => '<td>' + r.id + '</td><td>' + r.inp + '</td><td>' + (r.cached ?? '-') + '</td>';
+  const body = priced.map((r, i) =>
+    '<tr' + (i === 0 ? ' class="best"' : '') + '>' + cell(r) +
+    '<td>' + r.outp + '</td><td>¥' + r.cost.toFixed(2) + '</td>' +
+    '<td>' + (worst > 0 ? (r.cost / worst * 100).toFixed(1) + '%' : '-') + '</td></tr>'
+  ).join('') + incomplete.map(r =>
+    '<tr><td>' + r.id + '</td>' + cell(r) +
+    '<td>-</td><td colspan="2" style="text-align:left;color:var(--warn)">输出价未公布 · 不参与排名</td></tr>'
+  ).join('');
+  document.getElementById('tb').innerHTML = body;
+  document.getElementById('incomplete-note').hidden = incomplete.length === 0;
+}
+
+document.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-f]').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  filter = b.dataset.f;
+  render();
+}));
+document.getElementById('re').addEventListener('click', load);
+['mIn', 'mOut', 'mCache'].forEach(id =>
+  document.getElementById(id).addEventListener('input', render));
+
+load();
+</script>
+</body>
+</html>

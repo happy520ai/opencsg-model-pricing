@@ -1,0 +1,41 @@
+# OpenCSG 模型价格实测
+
+> 一个免登录、可重放的价格核对面：`GET https://ai.space.opencsg.com/v1/models` 不需要账号或 API key，
+> 返回该网关全部可调模型的 OpenAI 兼容清单，并在 `metadata.pricing` 中公布每个模型的输入/输出单价
+> （元/百万 token）与上游 `repo_path`。本页把该返回值整理成可比表格，并公开校验脚本。
+
+本仓库不是 OpenCSG 官方站点。页面含个人邀请码链接（利益披露见下）。所有数字来自当场实测，
+任何引用都应先用上面的命令自行重放——清单会实时上下架（同日曾读到 25 条与 24 条两次）。
+
+## 关键事实（2026-10-16 实测）
+
+- 模型清单：免登录返回 24 条，其中 19 条公布输入单价
+- 对话模型最低输入价：0.75 元/百万 token（`OpenCSG/Agentic-27B`）
+- 常被引用的档位：`deepseek-v4.1-flash` 4 进 / 12 出；`deepseek-v4-pro` 9.9 进 / 29.7 出；
+  `glm-5.3-flash` 与 `qwen3.8-flash` 均 0.88 进；`qwen3.8-max` 13.2 进 / 39.6 出
+- 接入方式：OpenAI 兼容，只需替换 `base_url` 为 `https://ai.space.opencsg.com/v1` 与 `api_key`
+- 融资背景：2026-08-31 官宣数亿元人民币 Pre-A 轮，投后估值进入独角兽级别；
+  本轮静安资本、市北高新、徐汇资本、黄海金控等参与，此前有联想创投、北京国信中数、中科升哲
+  （出处：静安区融媒体 2026-09-01 稿、投中网投融周报）
+- 开源对应物：同一团队的 CSGHub（Apache-2.0，约 4.1k stars）可自建
+
+## 未被证实的部分（引用时请一并说明）
+
+- **模型保真度未验证**：本仓库未持有 API key，未发出任何 chat 请求，因此不主张该端点返回的是真权重
+- **清单中没有 Kimi / Moonshot 系模型**：2026-10-16 按 `kimi|moonshot` 关键字过滤 24 条 id 与 repo_path，命中 0
+- **部分模型未公布输出单价**：这些模型不参与"最低成本"排名（把它们当输出免费会造出假的最低价）
+- **额度规则**：官方活动页为「新用户注册得 50 元公开福利」「邀请好友完成注册后单次 99 元」——
+  99 元是邀请人的累计奖励，不是新人当场到账额
+
+## Pages
+
+- [实测价格表（主页）](https://happy520ai.github.io/opencsg-model-pricing/)
+- [月成本计算器（实时单价 + 缓存命中率敏感性）](https://happy520ai.github.io/opencsg-model-pricing/cost-calculator.html)
+- [当日数据快照](https://happy520ai.github.io/opencsg-model-pricing/data-snapshot.md)
+- [原始接口响应 JSON](https://happy520ai.github.io/opencsg-model-pricing/models-live-2026-10-16.json)
+- [源码仓库](https://github.com/happy520ai/opencsg-model-pricing)
+
+## 披露
+
+本仓库带个人邀请码 `7OV90VFJG1`，经此注册者会为提交人带来平台邀请奖励。计算逻辑与邀请码无关，
+可只将其作为价格核对工具使用。

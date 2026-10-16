@@ -9,6 +9,7 @@
 本仓库做的事很简单：把上面这条命令的返回值变成**可核对、可重放、会自己过期**的价格表。所有数字来自当场实测，不来自宣传稿。
 
 **在线页面**：<https://happy520ai.github.io/opencsg-model-pricing/>
+**月成本计算器**：<https://happy520ai.github.io/opencsg-model-pricing/cost-calculator.html>（填你自己的 token 量，按实时单价排序；含缓存命中率敏感性）
 ![refresh-pricing-snapshot](https://github.com/happy520ai/opencsg-model-pricing/actions/workflows/refresh.yml/badge.svg)
 
 `data-snapshot.md` 每天由 GitHub Actions 重放一次接口自动更新；页面正文的主力价格行受 `check-site.mjs` 守门，一旦清单漂移该任务会变红，提醒重写而不是继续挂着对不上的数字。
