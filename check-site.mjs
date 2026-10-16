@@ -230,6 +230,17 @@ try {
   fails.push('审计页正文横评无法复核（拉不到工具产出：' + e.message + '）')
 }
 
+// 带日期的主张必须指向带日期的工件。RESULTS.md 每天被覆盖，所以
+// 「截至 2026-10-17……见 RESULTS.md」在第二天就成了一句查不到出处的话。
+const datedClaim = /截至 (20\d{2}-\d{2}-\d{2})/.exec(AUDIT_RAW);
+if (datedClaim) {
+  if (!AUDIT_RAW.includes('tree/main/results/history')) {
+    fails.push('审计页有带日期的主张（截至 ' + datedClaim[1] + '）却不含按日归档的链接 —— 指向会被覆盖的文件等于没有出处');
+  } else {
+    ok.push('带日期的主张配有按日归档链接（' + datedClaim[1] + ' → results/history/）');
+  }
+}
+
 // 9b. 不执行 JS 的读者必须还能看到数字（2026-10-17 实测：两张表都是"加载中…"，
 //     等于把最有转发价值的横评对爬虫和 AI 助手完全藏起来了）。
 // 这条判据原先写死 ['466/466','457/471','0/81'] —— 一个防手抄数字的门，自己手抄了数字。
