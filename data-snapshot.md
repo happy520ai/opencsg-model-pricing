@@ -1,7 +1,7 @@
 # OpenCSG 可调模型与价格（实测快照）
 
 核查日期：2026-10-16　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
-重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **24** 条，其中 **19** 条带输入价。
+重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **23** 条，其中 **18** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
 |---|---|---|---|
@@ -9,7 +9,6 @@
 | Qwen/Qwen3Guard-Gen-0.6B | 0.12 | 0.24 | Qwen/Qwen3Guard-Gen-0.6B |
 | Qwen/Qwen3Guard-Stream-0.6B | 0.12 | 0.24 | Qwen/Qwen3Guard-Stream-0.6B |
 | text-embedding-3-small | 0.16 | 0.16 | - |
-| jev-1.13 | 0.5 | - | - |
 | qwen3-rerank | 0.55 | 0.55 | - |
 | OpenCSG/Agentic-27B | 0.75 | 3 | OpenCSG/Agentic-27B |
 | glm-5.3-flash | 0.88 | 3.08 | - |

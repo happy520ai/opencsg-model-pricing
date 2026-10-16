@@ -110,7 +110,7 @@ def main():
         d.text((x + 22, cy + 72), small, font=small_f, fill=MUT)
 
     d.text((72, 560),
-           "清单实时上下架（同日读到过 25 条与 24 条）· 模型保真度未验证 · 页面含推广与邀请码",
+           "清单实时上下架（三天读到过 25 / 24 / 23 条）· 模型保真度未验证 · 页面含推广与邀请码",
            font=font(19, bold=False), fill=WARN)
 
     img.save(OUT, optimize=True)

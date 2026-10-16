@@ -16,17 +16,34 @@ if (!res.ok) fails.push('接口不可达 HTTP ' + res.status);
 else {
   const j = await res.json();
   const byId = new Map(j.data.map(m => [m.id.toLowerCase(), m]));
-  const rows = [...HTML.matchAll(/<tr class="hi"><td><strong>([\w.\-]+)<\/strong><\/td><td class="n"><strong>([\d.]+)<\/strong><\/td><td class="n"><strong>([\d.]+)<\/strong><\/td>/g)];
-  for (const [, id, inp, outp] of rows) {
+  const strip = s => s.replace(/<[^>]+>/g, '').trim();
+  // 逐行覆盖整张表，不只抽查高亮行：被下架的模型若还留在表里，
+  // 抽查三行是看不见的（2026-10-17 真机暴露了这个缺口）。
+  const tbody = (HTML.match(/<tbody>([\s\S]*?)<\/tbody>/) || [])[1] || '';
+  const rows = [...tbody.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)]
+    .map(m => [...m[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map(c => strip(c[1])));
+  let checked = 0;
+  for (const cells of rows) {
+    const [id, inp, outp] = cells;
+    if (!id) continue;
     const m = byId.get(id.toLowerCase());
-    if (!m) { fails.push('HTML 里的模型 ' + id + ' 在实时接口中不存在'); continue; }
-    const ai = m?.metadata?.pricing?.input_token_price?.price_per_million;
-    const ao = m?.metadata?.pricing?.output_token_price?.price_per_million;
-    if (String(ai) !== inp) fails.push(id + ' 输入价不符：HTML ' + inp + ' vs 接口 ' + ai);
-    if (String(ao) !== outp) fails.push(id + ' 输出价不符：HTML ' + outp + ' vs 接口 ' + ao);
+    if (!m) { fails.push('表内模型 ' + id + ' 已不在实时接口（该下架这一行）'); continue; }
+    const ai = m?.metadata?.pricing?.input_token_price?.price_per_million ?? null;
+    const ao = m?.metadata?.pricing?.output_token_price?.price_per_million ?? null;
+    const near = (a, b) => Math.abs(a - b) <= Math.max(0.005, Math.abs(b) * 0.005);
+    if (ai === null) { fails.push(id + ' 实时已无输入价，表内仍写 ' + inp); continue; }
+    if (!near(Number(inp), ai)) fails.push(id + ' 输入价不符：表 ' + inp + ' vs 实时 ' + ai);
+    if (outp === '-' || outp === '') {
+      if (ao !== null) fails.push(id + ' 表内写「-」但实时已有输出价 ' + ao);
+    } else if (ao === null) {
+      fails.push(id + ' 表内写输出价 ' + outp + ' 但实时未公布');
+    } else if (!near(Number(outp), ao)) {
+      fails.push(id + ' 输出价不符：表 ' + outp + ' vs 实时 ' + ao);
+    }
+    checked++;
   }
-  ok.push('高亮行 ' + rows.length + ' 条已与实时接口逐字段比对');
-  if (rows.length < 3) fails.push('高亮比对行太少（' + rows.length + '），覆盖不足');
+  if (checked < 10) fails.push('整表只比对到 ' + checked + ' 行，覆盖不足');
+  else ok.push('整表 ' + checked + ' 行已与实时接口逐字段比对（不再只抽查高亮行）');
 
   const liveCount = j.data.length;
   const snapMatch = HTML.match(/const SNAP = (\d+)/);

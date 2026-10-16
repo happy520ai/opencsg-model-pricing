@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenCSG 模型价格实测 · 一条免登录命令可复现</title>
-<meta name="description" content="2026-10-16 实测：curl https://ai.space.opencsg.com/v1/models 免登录返回 24 条模型、19 条带明码标价。DeepSeek V4.1 Flash 输入 4 元/百万 token，GLM-5.3-Flash 0.88 元起。含迁移代码、融资出处与未验证项清单。">
+<meta name="description" content="2026-10-17 实测：curl https://ai.space.opencsg.com/v1/models 免登录返回 23 条模型、18 条带明码标价。DeepSeek V4.1 Flash 输入 4 元/百万 token，GLM-5.3-Flash 0.88 元起。含迁移代码、融资出处与未验证项清单。">
 <meta property="og:title" content="OpenCSG 可调模型与价格：一条免登录命令自己验">
 <meta property="og:description" content="不用注册、不用 key，curl 就能拉到完整价目表。本页数字来自当日实测快照，附未验证项。">
 <meta property="og:type" content="website">
@@ -12,7 +12,7 @@
 <meta property="og:image" content="https://happy520ai.github.io/opencsg-model-pricing/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="OpenCSG 模型价格实测：24 条模型、19 条带价、对话模型最低输入价 0.75 元/百万 token">
+<meta property="og:image:alt" content="OpenCSG 模型价格实测：23 条模型、18 条带价、对话模型最低输入价 0.75 元/百万 token">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="OpenCSG 模型价格实测 · 一条免登录命令可复现">
 <meta name="twitter:description" content="curl 就能拉到完整价目表，不用注册。本页数字来自当日实测，附未验证项与成本计算器。">
@@ -22,9 +22,9 @@
 {
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": "OpenCSG 可调模型与价格实测（2026-10-16）",
+  "headline": "OpenCSG 可调模型与价格实测（2026-10-17）",
   "description": "对 OpenCSG OpenAI 兼容端点的模型清单与价格做免登录实测，附可复现命令、迁移代码与融资背景出处。",
-  "datePublished": "2026-10-16",
+  "datePublished": "2026-10-17",
   "author": {"@type": "Person", "name": "个人技术博主"},
   "about": {"@type": "Organization", "name": "OpenCSG 开放传神", "url": "https://opencsg.com"}
 }
@@ -65,7 +65,7 @@ footer{color:var(--mut);font-size:13.5px;border-top:1px solid var(--line);margin
 <div class="discl"><div class="wrap"><strong>广告 / 利益披露：</strong>本页注册链接带个人邀请码 <code>7OV90VFJG1</code>，有人通过它注册，我会获得平台邀请奖励。本页不是 OpenCSG 官方页面，所有价格与条数均本人当日实测，出处逐条列出。</div></div>
 
 <header class="wrap">
-  <p style="padding-top:22px"><span class="badge live" id="badge">实时读数：加载中…</span> <span class="badge">快照日 2026-10-16</span></p>
+  <p style="padding-top:22px"><span class="badge live" id="badge">实时读数：加载中…</span> <span class="badge">快照日 2026-10-17</span></p>
   <h1>一条不用注册、不用 key 的命令，<br>能看到它的全部模型和价格</h1>
   <p class="sub">很多模型聚合平台要把账号建完、充完值，才知道自己到底在付多少钱。OpenCSG 的兼容端点把这件事前置了：清单是免登录开放的，所以本页每一个数字你都能自己重放。</p>
 
@@ -75,8 +75,8 @@ footer{color:var(--mut);font-size:13.5px;border-top:1px solid var(--line);margin
 
 <main class="wrap">
 
-<h2>实测价格表（2026-10-16，元/百万 token）</h2>
-<p>当天返回 <strong>24</strong> 条模型，其中 <strong>19</strong> 条带输入价。我一天内跑了两次，一次 25 条、一次 24 条——<span class="warn">清单是实时上下架的</span>，做成本预算请以你自己当场重放的返回值为准，不要引用任何静态截图，包括本页。</p>
+<h2>实测价格表（2026-10-17，元/百万 token）</h2>
+<p>当天返回 <strong>23</strong> 条模型，其中 <strong>18</strong> 条带输入价。我连着跑了三天：25 条、24 条、23 条——<span class="warn">清单是实时上下架的</span>，做成本预算请以你自己当场重放的返回值为准，不要引用任何静态截图，包括本页。</p>
 <table>
 <thead><tr><th>模型 id</th><th>输入</th><th>输出</th><th>上游仓库</th></tr></thead>
 <tbody>
@@ -132,7 +132,7 @@ console.log(r.choices[0].message.content);</code></pre>
 
 <h2>我没能验证的部分（这部分别当成事实引用）</h2>
 <ul>
-<li class="red"><code>kimi-k3</code>：我在当日返回的 24 条里按 <code>kimi</code>/<code>moonshot</code> 关键字过滤，命中 <strong>0</strong> 条。平台别处（模型库页）是否有，我没查——所以本页不写「支持 Kimi」。</li>
+<li class="red"><code>kimi-k3</code>：我在当日返回的 23 条里按 <code>kimi</code>/<code>moonshot</code> 关键字过滤，命中 <strong>0</strong> 条。平台别处（模型库页）是否有，我没查——所以本页不写「支持 Kimi」。</li>
 <li class="warn">部分模型只有输入价、没有输出价（如 <code>glm-5.3-flash</code> 我第一趟读到输出为空）；计费口径以官网结算页为准。</li>
 <li class="warn">额度规则：官方活动页写「新用户注册得 50 元公开福利」「邀请好友完成注册后单次 99 元、多邀多得、上不封顶」。注意 <strong>99 元是邀请人的奖励，不是新人当场到账的额度</strong>；本页不写「注册送 99 元」。</li>
 <li class="warn">产品矩阵中 AgenticHub、CSGShip/StarShip、CodeSouler、CSGLite、CSGClaw 等名称，我本轮未取得可引用的官方出处，故不在本页主张。</li>
@@ -148,14 +148,14 @@ console.log(r.choices[0].message.content);</code></pre>
 </div>
 
 <footer>
-<p>本页为<strong>个人推广页</strong>，与 OpenCSG 官方无隶属关系；正文含商业推广，邀请链接带个人码。数据快照日期 2026-10-16，重放命令：<code>curl -s https://ai.space.opencsg.com/v1/models</code>。价格、条数、活动额度均可能变动，引用前请当场重放。</p>
+<p>本页为<strong>个人推广页</strong>，与 OpenCSG 官方无隶属关系；正文含商业推广，邀请链接带个人码。数据快照日期 2026-10-17，重放命令：<code>curl -s https://ai.space.opencsg.com/v1/models</code>。价格、条数、活动额度均可能变动，引用前请当场重放。</p>
 </footer>
 
 <script>
 (async () => {
   const badge = document.getElementById('badge');
   const note = document.getElementById('live-note');
-  const SNAP = 24;
+  const SNAP = 23;
   try {
     const t0 = performance.now();
     const res = await fetch('https://ai.space.opencsg.com/v1/models', { method: 'GET' });
