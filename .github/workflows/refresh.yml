@@ -85,7 +85,52 @@ jobs:
           } > drift.md
           gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file drift.md
 
-      # 数字确认与实时接口对得上，才告诉搜索引擎"这页是新的"。
+      # 额度文案锁着是对的，但锁一辈子是错的：新活动上线时没人会记得解锁。
+      # 这一步把"能不能提 50/99 元"变成每天从官方接口读出来的判断。
+      - name: Read campaign state from the vendor's own endpoints
+        id: campaign
+        continue-on-error: true
+        run: node check-campaign.mjs
+
+      - name: Commit campaign status
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain campaign-status.json)" ]]; then
+            git add campaign-status.json
+            git commit -m "data: refresh campaign state"
+            git push
+          else
+            echo "campaign status unchanged"
+          fi
+
+      # open  => 额度文案可以解锁了，得人来看（改文案是判断，不自动做）
+      # unknown => 判不了，也得人来定，别让页面悄悄挂着可能过期的承诺
+      # closed => 保持现状，不开 issue
+      - name: Open an issue when credit copy can be unlocked or is undecidable
+        if: steps.campaign.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STATE=$(node -e 'console.log(JSON.parse(require("fs").readFileSync("campaign-status.json","utf8")).state)')
+          if [ "$STATE" = "closed" ]; then echo "已确认收官，保持锁定，不开 issue"; exit 0; fi
+          TITLE="额度文案状态变更：$STATE（请复核 02 与站点 CTA）"
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "in:title 额度文案状态变更" --json number --jq '. | length')
+          if [ "$existing" != "0" ]; then echo "已有同类 issue，跳过重复"; exit 0; fi
+          {
+            echo "### 接口读数"
+            echo '```'
+            cat campaign-status.json
+            echo '```'
+            echo
+            if [ "$STATE" = "open" ]; then
+              echo "官方出现**在期的邀请类活动**。若确认额度权益恢复，可解锁 \`02-分平台文案包.md\` 与站点 CTA 里的 50/99 元表述，并同步撤下收官横幅。"
+            else
+              echo "判据**读不出结论**（接口形状变化或读取失败）。此时既不该上线额度、也不该断言它已结束——请人工确认，并考虑补 \`campaign-status.mjs\` 的解析分支。"
+            fi
+          } > credit.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file credit.md
+
       # 漂移时不 ping，避免把过期读数推给检索端。
       - name: Ping IndexNow when figures verified fresh
         if: steps.verify.outcome == 'success'

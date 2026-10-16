@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-16T18:06:02.191Z",
+  "state": "closed",
+  "why": "官方 active banner 宣布收官，且在期邀请活动 0 条",
+  "evidence": [
+    "active banner(id=4): 感谢大家热情参与！本期“邀请注册有礼”活动已于 [10月16日 24:00] 圆满收官。已发放的奖励权益保持不变，敬请期"
+  ],
+  "notes": [],
+  "sources": [
+    "https://opencsg.com/api/v1/broadcasts/active",
+    "https://opencsg.com/internal_api/campaigns?page=1&per=50&tag_name="
+  ]
+}
