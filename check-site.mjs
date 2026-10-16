@@ -56,6 +56,30 @@ for (const t of ['div', 'table', 'main', 'script', 'pre']) {
   else ok.push('<' + t + '> 平衡 ' + o);
 }
 
+// 6. 计算器：它必须"无静态数字"，否则就是一张会过期的假表
+const CALC_RAW = readFileSync(fileURLToPath(new URL('./cost-calculator.html', import.meta.url)), 'utf8');
+const CALC = CALC_RAW.replace(/<script[\s\S]*?<\/script>/g, '');
+for (const n of ['利益披露', '模型保真度我未验证', '不参与排名', 'ai.space.opencsg.com/v1/models']) {
+  if (!CALC.includes(n)) fails.push('计算器缺少：' + n);
+}
+if (/<td/i.test(CALC)) fails.push('计算器正文出现静态 <td>：价格表必须由 JS 从实时接口生成，写死就会过期');
+if (/¥\s?\d/.test(CALC)) fails.push('计算器正文出现写死的 ¥ 金额：同上');
+if (!HTML.includes('cost-calculator.html')) fails.push('主页未链到计算器（少一个内链，也少一处会过期的入口）');
+
+// 7. llms.txt 必须与两页同源披露
+const LLMS = readFileSync(fileURLToPath(new URL('./llms.txt', import.meta.url)), 'utf8');
+// 判"有没有声明未证实"要按性质匹配，别钉死某一种措辞（首版钉「未证实」，
+// 而 llms.txt 写的是「未被证实」，守卫红的是我自己写的字，不是文档缺了什么）
+if (!/未(被)?证实/.test(LLMS)) fails.push('llms.txt 缺少未证实声明');
+for (const n of ['邀请码', 'cost-calculator.html', '保真度未验证']) {
+  if (!LLMS.includes(n)) fails.push('llms.txt 缺少：' + n);
+}
+for (const b of ['立即领取99元', '注册送99', '所有国产模型都有']) {
+  for (const [name, doc] of [['index.html', HTML], ['cost-calculator.html', CALC], ['llms.txt', LLMS]]) {
+    if (doc.includes(b)) fails.push(name + ' 出现禁用表述：' + b);
+  }
+}
+
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 if (fails.length) { console.error('\nFAIL:\n' + fails.map(x => '  X  ' + x).join('\n')); process.exit(1); }
 console.log('\nALL CHECKS PASSED');

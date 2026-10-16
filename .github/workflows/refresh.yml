@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   refresh:
@@ -35,7 +36,33 @@ jobs:
             echo "snapshot unchanged"
           fi
 
-      # 页面正文里的价格是人工挑的主力行。清单一旦漂移，这一步变红，
-      # 提醒重写 index.html，而不是让页面继续显示对不上的数。
+      # 页面正文里的价格是人工挑的主力行。清单一旦漂移，这一步变红。
       - name: Verify page figures still match live endpoint
-        run: node check-site.mjs
+        id: verify
+        continue-on-error: true
+        run: node check-site.mjs | tee check.log
+
+      # 红了要自己找人，不然"有告警"等于"没告警"。
+      # 已有开着的同类 issue 就不重复开（避免每天刷一条）。
+      - name: Open a drift issue when the published figures go stale
+        if: steps.verify.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: "线上页面数字已与实时接口漂移，需重写"
+        run: |
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --search "in:title $TITLE" --json number --jq '. | length')
+          if [ "$existing" != "0" ]; then
+            echo "已有开着的漂移 issue，跳过重复创建"
+            exit 0
+          fi
+          {
+            echo "### check-site.mjs 输出"
+            echo '```'
+            cat check.log
+            echo '```'
+            echo
+            echo "实时接口读数已变化，但 \`index.html\` 里挑出来展示的主力价格行还是旧的。"
+            echo "请按 \`data-snapshot.md\` 的最新返回值重写正文，或确认这些行确实该下线。"
+          } > drift.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file drift.md
