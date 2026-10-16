@@ -24,16 +24,28 @@ jobs:
       - name: Replay /v1/models and regenerate snapshot
         run: node refresh-model-table.mjs
 
+      # 静态快照必须被机器刷新：手抄的 fallback 就是下一个会过期的数字。
+      - name: Embed the cross-repo readings as no-JS snapshot
+        run: |
+          curl -s --max-time 40 -o gateway-readings.json \
+            https://raw.githubusercontent.com/happy520ai/gateway-price-check/main/results/latest.json
+          node -e '
+            const d=JSON.parse(require("fs").readFileSync("gateway-readings.json","utf8"));
+            if(!d.results || d.results.length < 10) { console.error("REFUSED: 拉到的读数不足 10 行，不覆盖快照"); process.exit(1); }
+            console.log("fetched", d.results.length, "rows, as_of", d.as_of);
+          '
+          node embed-readings.mjs gateway-readings.json
+
       - name: Commit snapshot if it moved
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain data-snapshot.md)" ]]; then
-            git add data-snapshot.md
-            git commit -m "data: refresh model snapshot from live endpoint"
+          if [[ -n "$(git status --porcelain data-snapshot.md audit.html gateway-readings.json)" ]]; then
+            git add data-snapshot.md audit.html gateway-readings.json
+            git commit -m "data: refresh snapshot and no-JS readings"
             git push
           else
-            echo "snapshot unchanged"
+            echo "unchanged"
           fi
 
       # 页面正文里的价格是人工挑的主力行。清单一旦漂移，这一步变红。

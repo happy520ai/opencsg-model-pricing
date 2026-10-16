@@ -95,7 +95,12 @@ for (const n of ['利益披露', 'OpenRouter', '不是透明度差异', 'ai.spac
 if (!AUDIT_RAW.includes('raw.githubusercontent.com/happy520ai/gateway-price-check')) {
   fails.push('审计页不再从 gateway-price-check 仓库现拉读数（跨仓库链路断了）');
 }
-if (/<td>\d/.test(AUDIT)) fails.push('审计页正文写死了计数：读数应由 JS 现场测，否则会和两个端点的实时值脱节');
+// 静态数字只允许出现在生成区块里。区块之外写死一个数，才是真的会过期。
+// （第一版这条判据写成"正文里不许有任何 <td>数字"，与"无 JS 读者要能看到读数"
+//   直接冲突——两条都测过一次才发现问题在我自己的判据，不在页面。）
+const GENERATED = /<!--(?:READINGS|OWNREADINGS):START-->[\s\S]*?<!--(?:READINGS|OWNREADINGS):END-->/g;
+const OUTSIDE = AUDIT.replace(GENERATED, '');
+if (/<td[^>]*>\d/.test(OUTSIDE)) fails.push('审计页在生成区块之外写死了数字（那部分没人复核，会过期）');
 
 // 8. llms.txt 必须与两页同源披露
 const LLMS = readFileSync(fileURLToPath(new URL('./llms.txt', import.meta.url)), 'utf8');
@@ -147,6 +152,16 @@ try {
 } catch (e) {
   fails.push('首页横评无法复核（拉不到工具产出：' + e.message + '）——宁可判红，别放过期数字');
 }
+
+// 9b. 不执行 JS 的读者必须还能看到数字（2026-10-17 实测：两张表都是"加载中…"，
+//     等于把最有转发价值的横评对爬虫和 AI 助手完全藏起来了）。
+const NOJS = AUDIT.replace(/<!--READINGS:(START|END)-->/g, '').replace(/<!--OWNREADINGS:(START|END)-->/g, '');
+if (/尚未生成/.test(NOJS)) fails.push('审计页有静态快照没生成（无 JS 读者会看到占位符）');
+if (/加载中/.test(NOJS)) fails.push('审计页正文仍留有"加载中…"占位（无 JS 时表格是空的）');
+for (const token of ['466/466', '457/471', '0/81', '需要 key 才能读清单']) {
+  if (!NOJS.includes(token)) fails.push('审计页静态快照缺少实时可见性关键的读数：' + token);
+}
+ok.push('审计页对不执行 JS 的读者仍给出完整 11 行读数');
 
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 // 用 exitCode 而不是 process.exit()：Windows 上强退会与未排空的 fetch handle

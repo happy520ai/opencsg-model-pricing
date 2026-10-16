@@ -36,15 +36,34 @@ pre{background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:1
 <p class="sub" id="status">正在拉取两个端点…</p>
 <table id="tbl"><thead><tr>
 <th>服务商</th><th>模型数</th><th>有输入价</th><th>有任一价字段</th><th>含缓存价</th><th>显式 currency 字段</th><th>含上游仓库标识</th>
-</tr></thead><tbody id="tb"><tr><td colspan="7" class="sub">加载中…</td></tr></tbody></table>
+</tr></thead><tbody id="tb">
+      <!--OWNREADINGS:START-->
+      <tr><td>OpenCSG</td><td>23</td><td>18</td><td>21</td><td>12</td><td>21</td><td>13</td></tr>
+      <tr><td>OpenRouter</td><td>466</td><td>466</td><td>466</td><td>310</td><td>0</td><td>466</td></tr>
+      <!--OWNREADINGS:END-->
+</tbody></table>
 
 <h2>11 家全景（每日自动产出）</h2>
 <p class="sub">下面这张表<strong>不是本页测的</strong>，是 <a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a> 每天跑一次、把结果提交进它自己仓库后由本页现拉的。分开摆是故意的：上面两行是本页自己的独立实现，用来和它互相校验；只有一台仪器时，你分不清读到的是世界还是仪器。</p>
 <p class="sub" id="wide-status">正在拉取跨仓库读数…</p>
 <table id="wide"><thead><tr>
 <th>服务商</th><th>模型数</th><th>公布价格</th><th>判词</th>
-</tr></thead><tbody id="wide-tb"><tr><td colspan="4" class="sub">加载中…</td></tr></tbody></table>
-<p class="sub" id="wide-summary"></p>
+</tr></thead><tbody id="wide-tb">
+      <!--READINGS:START-->
+      <tr><td>OpenCSG</td><td>23</td><td>21/23</td><td style="text-align:left">21/23 条公布价格（91%） · 带显式币种字段 · 含缓存价 · 含上游仓库标识</td></tr>
+      <tr><td>OpenRouter</td><td>466</td><td>466/466</td><td style="text-align:left">466/466 条公布价格（100%） · 含缓存价 · 含上游仓库标识</td></tr>
+      <tr><td>Vercel AI Gateway</td><td>471</td><td>457/471</td><td style="text-align:left">457/471 条公布价格（97%） · 含缓存价 · 注：60 条的价格键不在词表内（video_duration_pricing, image, image_dimension_quality_pricing…）——它们计入"公布价格"列，但我没解析出数值</td></tr>
+      <tr><td>NVIDIA NIM</td><td>81</td><td>0/81</td><td style="text-align:left">免登录清单里没有任何价格字段</td></tr>
+      <tr><td>OpenAI</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
+      <tr><td>DeepSeek</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
+      <tr><td>SiliconFlow 硅基流动</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
+      <tr><td>Alibaba DashScope 百炼</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
+      <tr><td>Volcengine Ark 火山方舟</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
+      <tr><td>Zhipu 智谱</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
+      <tr><td>MiniMax</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
+      <!--READINGS:END-->
+</tbody></table>
+<p class="sub" id="wide-summary">上表是写进 HTML 的静态快照，不执行 JS 的抓取器与 AI 助手也能读到；能跑 JS 的浏览器会现拉工具仓库的最新产出并覆盖它。快照由 `embed-readings.mjs` 生成，不手抄。</p>
 
 <h2>结论：透明度这项打平，差异在单位</h2>
 <div class="card">
@@ -145,8 +164,9 @@ async function loadWide() {
       '　读数生成于 ' + doc.as_of + '（' + (doc.as_of_tz || '未标时区') + '）';
     st.textContent = '跨仓库读数拉取成功 · 每日由对方 CI 重写';
   } catch (e) {
-    st.textContent = '拉不到跨仓库读数（' + e.message + '）——这张表宁可空着，也不放一份可能过期的拷贝。上面两行仍是本页自己测的。';
-    tb.innerHTML = '<tr><td colspan="4" class="sub">（无数据）</td></tr>';
+    // 不要清表：静态快照已经在这儿，清掉就等于把"实时拉取失败"变成"什么都没写"，
+    // 顺带把不跑 JS 的读者刚拿到的数据也抹了。
+    st.textContent = '实时拉取失败（' + e.message + '）——下面保留的是页内静态快照，可能比现在旧一天，日期见表格下方。';
   }
 }
 
