@@ -86,7 +86,9 @@ if (!HTML.includes('cost-calculator.html')) fails.push('主页未链到计算器
 // 7b. 审计页：结论必须带着那个反例，且不许写死计数
 const AUDIT_RAW = readFileSync(fileURLToPath(new URL('./audit.html', import.meta.url)), 'utf8');
 const AUDIT = AUDIT_RAW.replace(/<script[\s\S]*?<\/script>/g, '');
-for (const n of ['利益披露', 'OpenRouter', '不是透明度差异', 'ai.space.opencsg.com/v1/models']) {
+for (const n of ['利益披露', 'OpenRouter', '不是透明度差异', 'ai.space.opencsg.com/v1/models',
+  '11 家全景', 'raw.githubusercontent.com/happy520ai/gateway-price-check',
+  '才是', '只有一台仪器']) {
   if (!AUDIT.includes(n)) fails.push('审计页缺少：' + n);
 }
 if (/<td>\d/.test(AUDIT)) fails.push('审计页正文写死了计数：读数应由 JS 现场测，否则会和两个端点的实时值脱节');

@@ -38,10 +38,18 @@ pre{background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:1
 <th>服务商</th><th>模型数</th><th>有输入价</th><th>有任一价字段</th><th>含缓存价</th><th>显式 currency 字段</th><th>含上游仓库标识</th>
 </tr></thead><tbody id="tb"><tr><td colspan="7" class="sub">加载中…</td></tr></tbody></table>
 
+<h2>11 家全景（每日自动产出）</h2>
+<p class="sub">下面这张表<strong>不是本页测的</strong>，是 <a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a> 每天跑一次、把结果提交进它自己仓库后由本页现拉的。分开摆是故意的：上面两行是本页自己的独立实现，用来和它互相校验；只有一台仪器时，你分不清读到的是世界还是仪器。</p>
+<p class="sub" id="wide-status">正在拉取跨仓库读数…</p>
+<table id="wide"><thead><tr>
+<th>服务商</th><th>模型数</th><th>公布价格</th><th>判词</th>
+</tr></thead><tbody id="wide-tb"><tr><td colspan="4" class="sub">加载中…</td></tr></tbody></table>
+<p class="sub" id="wide-summary"></p>
+
 <h2>结论：透明度这项打平，差异在单位</h2>
 <div class="card">
 <p><strong>不成立了：</strong>"注册前即可审计清单与价格"不是 OpenCSG 的独有属性。在<strong>聚合网关</strong>这一类里它是常态——我量过的三家（OpenCSG、OpenRouter、Vercel AI Gateway）都免登录公布价格。</p>
-<p><strong>但也不是行业惯例：</strong>在<strong>模型原厂</strong>那一类里，我量的两家（OpenAI、DeepSeek）对同一个请求直接回 401，不注册连清单都看不到。所以"免登录能不能看价"是<strong>一家一家的决定</strong>，不是某个群体的默认设置——任何拿它当独家卖点的文案都不该被相信。</p>
+<p><strong>但也不是行业惯例：</strong>11 家里<strong>只有 3 家</strong>免登录公布价格；7 家（OpenAI、DeepSeek、硅基流动、阿里百炼、火山方舟、智谱、MiniMax）对同一个请求直接回 401，不注册连清单都看不到；还有 1 家（NVIDIA NIM）把 81 个模型 id 公开了、却一个价都不标。所以"免登录能不能看价"<strong>一家一个样</strong>，跟厂商大小也无关——任何拿它当独家卖点的文案都不该被相信。</p>
 <p><strong>仍然成立、且测得出：</strong>OpenCSG 每个价格对象带 <code class="win">currency:"￥"</code> 并按「元/百万 token」报；OpenRouter 报「美元/token」的极小小数、<code class="warn">不带币种字段</code>。对用人民币结算的团队，这是单位与可读性差异——<strong>不是透明度差异</strong>，别混着说。</p>
 <p class="sub" style="margin-bottom:0">样本形状：<br>OpenCSG <code>{"input_token_price":{"currency":"￥","price_per_million":13.2,"cached_price_per_million":1.65}}</code><br>OpenRouter <code>{"prompt":"0.00000025","completion":"0.000001"}</code></p>
 </div>
@@ -55,7 +63,7 @@ curl -s https://openrouter.ai/api/v1/models      | head -c 400</code></pre>
 <p class="sub">两个端点都无需 key。若你所在网络被拦，本页会退回仓库里的 <a href="./audit-latest.json">audit-latest.json</a> 快照并标明是快照。</p>
 
 <p class="sub">数据快照同时存在 <a href="./audit-latest.md">audit-latest.md</a>；生成脚本 <a href="https://github.com/happy520ai/opencsg-model-pricing/blob/main/transparency-audit.mjs">transparency-audit.mjs</a>。</p>
-<p class="sub">想量你自己的网关：<a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a>（零依赖 CLI，一次无鉴权 GET，判词分 <code>YES</code>/<code>NO</code>/<code>AUTH</code>/<code>ERR</code>/<code>UNKNOWN</code> 五档——把"我没读到"和"它没价格"分开，401 则算作明确的"否"）。11 家每日自动读数见它的 <a href="https://github.com/happy520ai/gateway-price-check/blob/main/RESULTS.md">RESULTS.md</a>（截至 2026-10-17：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key）。<br><strong>说明：</strong>本页那张表<strong>不是</strong>那个工具跑的，是本页自己的浏览器代码 + 仓库里的 <code>transparency-audit.mjs</code> 各算一遍。两套独立实现同指一件事，是有意为之——只有一台仪器时，你分不清读到的是世界还是仪器。</p>
+<p class="sub">想量你自己的网关：<a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a>（零依赖 CLI，一次无鉴权 GET，判词分 <code>YES</code>/<code>NO</code>/<code>AUTH</code>/<code>ERR</code>/<code>UNKNOWN</code> 五档——把"我没读到"和"它没价格"分开，401 则算作明确的"否"）。11 家每日自动读数见它的 <a href="https://github.com/happy520ai/gateway-price-check/blob/main/RESULTS.md">RESULTS.md</a>（截至 2026-10-17：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key）。<br><strong>两张表的来源不同，别说混了：</strong>第一张「现场读数」<strong>不是</strong>那个工具跑的，是本页自己的浏览器代码 + 仓库里的 <code>transparency-audit.mjs</code> 各算一遍；第二张「11 家全景」<strong>才是</strong>那个工具每日产出的拷贝，本页只现拉不重算。两套独立实现同指一件事是有意为之——只有一台仪器时，你分不清读到的是世界还是仪器。</p>
 <p class="sub">要注册的话 <a href="https://opencsg.com/signup?invitationCode=7OV90VFJG1" rel="nofollow sponsored">这个链接带我的邀请码</a>；模型保真度我未验证（没有 key，没发过 chat 请求）。</p>
 </div>
 
@@ -115,7 +123,35 @@ function render(rows, isSnapshot, asOf) {
     '<tr><td>' + r.name + '</td><td>' + r.total + '</td><td>' + r.inputPriced + '</td><td>' + r.priced +
     '</td><td>' + r.cache + '</td><td>' + r.currencyField + '</td><td>' + r.upstream + '</td></tr>').join('');
 }
+// 跨仓库读数：由 gateway-price-check 每日提交，本页只负责现拉现渲染。
+const WIDE_URL = 'https://raw.githubusercontent.com/happy520ai/gateway-price-check/main/results/latest.json';
+async function loadWide() {
+  const st = document.getElementById('wide-status');
+  const tb = document.getElementById('wide-tb');
+  try {
+    const res = await fetch(WIDE_URL, { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const doc = await res.json();
+    const rows = doc.results || [];
+    if (rows.length === 0) throw new Error('空读数');
+    const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    tb.innerHTML = rows.map(r =>
+      '<tr><td>' + esc(r.name) + '</td><td>' + (r.total ?? '—') + '</td><td>' +
+      (r.hasPricing != null ? r.hasPricing + '/' + r.total : '—') + '</td><td style="text-align:left">' +
+      esc(r.verdict) + '</td></tr>').join('');
+    const by = rows.reduce((a, r) => (a[r.level] = (a[r.level] || 0) + 1, a), {});
+    document.getElementById('wide-summary').textContent =
+      '共 ' + rows.length + ' 家：' + Object.entries(by).map(([k, v]) => k + ' ' + v + ' 家').join(' · ') +
+      '　读数生成于 ' + doc.as_of + '（' + (doc.as_of_tz || '未标时区') + '）';
+    st.textContent = '跨仓库读数拉取成功 · 每日由对方 CI 重写';
+  } catch (e) {
+    st.textContent = '拉不到跨仓库读数（' + e.message + '）——这张表宁可空着，也不放一份可能过期的拷贝。上面两行仍是本页自己测的。';
+    tb.innerHTML = '<tr><td colspan="4" class="sub">（无数据）</td></tr>';
+  }
+}
+
 run();
+loadWide();
 </script>
 </body>
 </html>
