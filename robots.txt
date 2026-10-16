@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://happy520ai.github.io/opencsg-model-pricing/sitemap.xml
