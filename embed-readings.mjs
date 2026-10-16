@@ -38,7 +38,7 @@ const ownTr = r => '      <tr><td>' + esc(r.name) + '</td><td>' + (r.total ?? '�
   '</td><td>' + (r.priced ?? '—') + '</td><td>' + (r.cache ?? '—') + '</td><td>' + (r.currencyField ?? '—') +
   '</td><td>' + (r.upstream ?? '—') + '</td></tr>';
 
-function fill(html, tag, body) {
+function fill(html, tag, body, inline) {
   const S = '<!--' + tag + ':START-->', E = '<!--' + tag + ':END-->';
   const ns = (html.match(new RegExp(S, 'g')) || []).length;
   const ne = (html.match(new RegExp(E, 'g')) || []).length;
@@ -46,7 +46,8 @@ function fill(html, tag, body) {
     console.error(`REFUSED: ${tag} 标记应各 1 个，实际 ${ns}/${ne} —— 不猜落点`);
     process.exitCode = 1; throw new Error('bad markers: ' + tag);
   }
-  const block = S + '\n' + body.join('\n') + '\n      ' + E;
+  // 行内区块不能垫换行+缩进：中文正文里那会变成两个肉眼可见的空格。
+  const block = inline ? S + body.join('') + E : S + '\n' + body.join('\n') + '\n      ' + E;
   const out = html.replace(new RegExp(S + '[\\s\\S]*?' + E), () => block);
   if (out.replace(new RegExp(S + '[\\s\\S]*?' + E), () => block) !== out) {
     console.error('REFUSED: ' + tag + ' 非幂等'); process.exitCode = 1; throw new Error('not idempotent: ' + tag);
@@ -56,6 +57,16 @@ function fill(html, tag, body) {
 
 let html = readFileSync(TARGET, 'utf8');
 html = fill(html, 'READINGS', rows.map(tr));
+
+// 正文里那句「截至 X：只有 3 家…1 家…7 家…」是全页最容易被单独摘出去转发的一句，
+// 而它此前是手打的。一家网关从 401 转为公开价格，这句话当场变假话，且没有任何判据看得见。
+const c = lvl => rows.filter(r => r.level === lvl).length;
+const undecidable = rows.length - c('YES') - c('NO') - c('AUTH');
+html = fill(html, 'SIZETXT', [rows.length + ' 家每日自动读数'], true);
+html = fill(html, 'SUMMARY', ['截至 ' + doc.as_of + '：只有 ' + c('YES') + ' 家免登录公布价格，' +
+  c('NO') + ' 家公开清单却完全不标价，' + c('AUTH') + ' 家连清单都要 key' +
+  (undecidable > 0 ? '，另有 ' + undecidable + ' 家本轮不可判（不计入前面任何一档）' : '')], true);
+
 const ownRows = OWN.rows || [];
 if (ownRows.length === 0) { console.error('REFUSED: audit-latest.json 无行'); process.exitCode = 1; throw new Error('empty own'); }
 html = fill(html, 'OWNREADINGS', ownRows.map(ownTr));

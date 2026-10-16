@@ -207,6 +207,29 @@ try {
   fails.push('审计页家数无法复核（拉不到工具产出：' + e.message + '）');
 }
 
+try {
+  const GWDOC = await (await fetch(WIDE_URL)).json();
+  const GWROWS = GWDOC.results || [];
+  const gwc = lvl => GWROWS.filter(r => r.level === lvl).length;
+  // 正文那句「只有 3 家…1 家…7 家…」是全页最会被单独摘走转发的句子，现已由
+  // embed-readings.mjs 生成。这里复核它，是为了抓"标记还在但生成器不再填它"这一类失效：
+  // 那种情况下页面会永远停在最后一次成功生成时的数字，而且看起来完全正常。
+  const summaryM = AUDIT_RAW.match(/<!--SUMMARY:START-->([\s\S]*?)<!--SUMMARY:END-->/);
+  if (!summaryM) fails.push('找不到 SUMMARY 区块（生成器落点丢了？）');
+  else {
+    const want = '截至 ' + GWDOC.as_of + '：只有 ' + (gwc('YES')) + ' 家免登录公布价格，' +
+      (gwc('NO')) + ' 家公开清单却完全不标价，' + (gwc('AUTH')) + ' 家连清单都要 key';
+    if (summaryM[1] !== want) fails.push('审计页正文那句横评与工具实时产出不符：\n      页面「' + summaryM[1] + '」\n      应为「' + want + '」');
+    else ok.push('审计页正文那句横评由生成器产出且与工具实时一致');
+    const sizeM = AUDIT_RAW.match(/<!--SIZETXT:START-->([\s\S]*?)<!--SIZETXT:END-->/);
+    if (!sizeM) fails.push('找不到 SIZETXT 区块');
+    else if (sizeM[1] !== (GWROWS.length) + ' 家每日自动读数')
+      fails.push('审计页「N 家每日自动读数」写的是「' + sizeM[1] + '」，工具实际测了 ' + (GWROWS.length) + ' 家');
+  }
+} catch (e) {
+  fails.push('审计页正文横评无法复核（拉不到工具产出：' + e.message + '）')
+}
+
 // 9b. 不执行 JS 的读者必须还能看到数字（2026-10-17 实测：两张表都是"加载中…"，
 //     等于把最有转发价值的横评对爬虫和 AI 助手完全藏起来了）。
 const NOJS = AUDIT.replace(/<!--READINGS:(START|END)-->/g, '').replace(/<!--OWNREADINGS:(START|END)-->/g, '');
