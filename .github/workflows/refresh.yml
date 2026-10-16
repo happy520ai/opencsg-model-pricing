@@ -39,12 +39,14 @@ jobs:
       # 页面正文里的价格是人工挑的主力行。清单一旦漂移，这一步变红。
       # pipefail 是必需的：`node x | tee log` 默认返回 tee 的 0，
       # 会把 node 的失败洗掉——真机测过一次，毒化的读数全绿通过、issue 被 skip。
+      # 2>&1 同样必需：check-site.mjs 的 FAIL 段走 console.error(stderr)，
+      # 只接 stdout 会开出一张"原因空白"的 issue——也真机测过一次。
       - name: Verify page figures still match live endpoint
         id: verify
         continue-on-error: true
         run: |
           set -o pipefail
-          node check-site.mjs | tee check.log
+          node check-site.mjs 2>&1 | tee check.log
 
       # 红了要自己找人，不然"有告警"等于"没告警"。
       # 已有开着的同类 issue 就不重复开（避免每天刷一条）。
