@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const HTML = readFileSync(fileURLToPath(new URL('./site/index.html', import.meta.url)), 'utf8');
+const HTML = readFileSync(fileURLToPath(new URL('./index.html', import.meta.url)), 'utf8');
 const fails = [];
 const ok = [];
 

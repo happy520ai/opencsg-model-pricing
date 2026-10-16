@@ -2,7 +2,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const URL_MODELS = 'https://ai.space.opencsg.com/v1/models';
-const OUT = fileURLToPath(new URL('./模型清单-实测.md', import.meta.url));
+const OUT = fileURLToPath(new URL('./data-snapshot.md', import.meta.url));
 
 const res = await fetch(URL_MODELS);
 if (!res.ok) {

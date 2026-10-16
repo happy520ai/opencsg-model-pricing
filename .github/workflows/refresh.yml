@@ -1,0 +1,41 @@
+name: refresh-pricing-snapshot
+
+on:
+  schedule:
+    - cron: '30 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # 接口不可达或返回 0 条时脚本非 0 退出，job 在此停住：
+      # 宁可不提交，也不把旧快照当今日读数推上线。
+      - name: Replay /v1/models and regenerate snapshot
+        run: node refresh-model-table.mjs
+
+      - name: Commit snapshot if it moved
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain data-snapshot.md)" ]]; then
+            git add data-snapshot.md
+            git commit -m "data: refresh model snapshot from live endpoint"
+            git push
+          else
+            echo "snapshot unchanged"
+          fi
+
+      # 页面正文里的价格是人工挑的主力行。清单一旦漂移，这一步变红，
+      # 提醒重写 index.html，而不是让页面继续显示对不上的数。
+      - name: Verify page figures still match live endpoint
+        run: node check-site.mjs
