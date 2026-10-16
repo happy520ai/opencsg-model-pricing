@@ -352,7 +352,7 @@ if (fails.length === stuckBefore) ok.push('三页均无"永远加载中"式残�
 // 11. 邀请链接不会自动带码（2026-10-17 实测注册页 Enter your code 为空）。
 //     任何放了注册链接却没有"手填"指示的页面，都会让读者白注册、让推荐白做。
 const CODE_LINK = 'invitationCode=7OV90VFJG1';
-for (const page of ['./index.html', './cost-calculator.html', './audit.html', './llms.txt']) {
+for (const page of ['./index.html', './cost-calculator.html', './audit.html', './llms.txt', './llms-full.txt']) {
   const raw = readFileSync(fileURLToPath(new URL(page, import.meta.url)), 'utf8');
   if (!raw.includes(CODE_LINK)) continue;
   if (!/手填|Enter your code/.test(raw)) {
@@ -363,13 +363,35 @@ ok.push('所有含注册链接的页面都明示"需手填邀请码"');
 
 // 12. 提到 50/99 元额度的文件，必须同时带上"活动可能已收官"的限定。
 //     这些句子在收官之后逐字仍"曾经为真"，却已变成虚假承诺——llms.txt 还会被 AI 直接转述。
-for (const f of ['./index.html', './cost-calculator.html', './audit.html', './llms.txt', './README.md']) {
+for (const f of ['./index.html', './cost-calculator.html', './audit.html', './llms.txt', './README.md', './llms-full.txt']) {
   const raw = readFileSync(fileURLToPath(new URL(f, import.meta.url)), 'utf8');
   if (/50 元|99 元/.test(raw) && !/收官|已失效/.test(raw)) {
     fails.push(`${f} 写了额度数字却没有"活动可能已收官"限定语——会被当成现行承诺`);
   }
 }
 ok.push('所有含额度数字的文件都带活动状态限定');
+
+// 13. llms-full.txt 是"给 AI 整篇读"的那一份，必须由 build-llms-full.mjs 从
+//     llms.txt + data-snapshot.md + gateway-readings.json 拼出来。它一旦落后于来源，
+//     就成了全站唯一没人复核的载体——所以比对的是"与来源是否逐字一致"，不是"看着对"。
+const FULL = readFileSync(fileURLToPath(new URL('./llms-full.txt', import.meta.url)), 'utf8');
+const fullFacts = (FULL.match(/<!--FACTS:START-->[\s\S]*?<!--FACTS:END-->/) || [])[0];
+const srcFacts = (LLMS_EARLY.match(/<!--FACTS:START-->[\s\S]*?<!--FACTS:END-->/) || [])[0];
+if (!fullFacts) fails.push('llms-full.txt 里没有 FACTS 段（该文件应由生成器产出，不是手抄）');
+else if (fullFacts !== srcFacts) fails.push('llms-full.txt 的 FACTS 段落后于 llms.txt——跑 build-llms-full.mjs');
+if (!FULL.includes('# OpenCSG 模型价格实测')) fails.push('llms-full.txt 缺主标题');
+if (!/##[^#\n]*未[被]?证实/.test(FULL)) fails.push('llms-full.txt 没有「未被证实」小节');
+for (const need of ['## 披露', '手填']) if (!FULL.includes(need)) fails.push('llms-full.txt 缺少：' + need);
+const AUDIT_FULL = readFileSync(fileURLToPath(new URL('./audit.html', import.meta.url)), 'utf8');
+const srcSummary = (AUDIT_FULL.match(/<!--SUMMARY:START-->([\s\S]*?)<!--SUMMARY:END-->/) || [])[1];
+if (!srcSummary || !FULL.includes(srcSummary.trim())) fails.push('llms-full.txt 的横评结论句与 audit.html 的生成段不一致');
+for (const b of banned) if (FULL.includes(b)) fails.push('llms-full.txt 出现禁用表述：' + b);
+const gwFull = JSON.parse(readFileSync(fileURLToPath(new URL('./gateway-readings.json', import.meta.url)), 'utf8'));
+const missing = (gwFull.results || []).filter(r =>
+  !new RegExp('^\\| ' + r.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\| ' +
+    r.level.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\|', 'm').test(FULL));
+if (missing.length) fails.push('llms-full.txt 横评缺行或判词不符：' + missing.map(r => r.name + '/' + r.level).join('、'));
+else ok.push('llms-full.txt 与三个来源逐字一致，横评 ' + (gwFull.results || []).length + ' 行按「行首名 + 判词」逐行比对通过');
 
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 // 用 exitCode 而不是 process.exit()：Windows 上强退会与未排空的 fetch handle

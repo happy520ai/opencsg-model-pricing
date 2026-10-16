@@ -59,6 +59,7 @@ npx github:happy520ai/gateway-price-check --url https://ai.space.opencsg.com/v1 
 - [当日数据快照](https://happy520ai.github.io/opencsg-model-pricing/data-snapshot.md)
 - [原始接口响应 JSON](https://happy520ai.github.io/opencsg-model-pricing/models-live-2026-10-16.json)
 - [源码仓库](https://github.com/happy520ai/opencsg-model-pricing)
+- [全文（本文件 + 当日快照 + 跨网关横评明细，供整篇读取）](https://happy520ai.github.io/opencsg-model-pricing/llms-full.txt)
 
 ## 披露
 

@@ -35,6 +35,8 @@ jobs:
             console.log("fetched", d.results.length, "rows, as_of", d.as_of);
           '
           node embed-readings.mjs gateway-readings.json
+          # llms-full.txt 必须在上面两步之后：它拼的是 llms.txt + 快照 + 刚拉到的横评。
+          node build-llms-full.mjs
 
       # 分享卡必须跟着数据一起重跑。这两个脚本以前写死 C:/Windows/Fonts，
       # 所以"每日重生成"其实是"从未重生成"：图会停在写它那天的数字，而图片里的数字
@@ -51,8 +53,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain data-snapshot.md llms.txt audit.html gateway-readings.json og-image.png audit-og.png)" ]]; then
-            git add data-snapshot.md llms.txt audit.html gateway-readings.json og-image.png audit-og.png
+          if [[ -n "$(git status --porcelain data-snapshot.md llms.txt llms-full.txt audit.html gateway-readings.json og-image.png audit-og.png)" ]]; then
+            git add data-snapshot.md llms.txt llms-full.txt audit.html gateway-readings.json og-image.png audit-og.png
             git commit -m "data: refresh snapshot and no-JS readings"
             git push
           else
@@ -151,6 +153,7 @@ jobs:
             https://happy520ai.github.io/opencsg-model-pricing/cost-calculator.html
             https://happy520ai.github.io/opencsg-model-pricing/audit.html
             https://happy520ai.github.io/opencsg-model-pricing/llms.txt
+            https://happy520ai.github.io/opencsg-model-pricing/llms-full.txt
         run: |
           set -euo pipefail
           KEY=$(ls | grep -E '^[0-9a-f]{32}\.txt$' | head -1 | cut -d. -f1)
