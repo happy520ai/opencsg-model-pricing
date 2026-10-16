@@ -55,7 +55,7 @@ curl -s https://openrouter.ai/api/v1/models      | head -c 400</code></pre>
 <p class="sub">两个端点都无需 key。若你所在网络被拦，本页会退回仓库里的 <a href="./audit-latest.json">audit-latest.json</a> 快照并标明是快照。</p>
 
 <p class="sub">数据快照同时存在 <a href="./audit-latest.md">audit-latest.md</a>；生成脚本 <a href="https://github.com/happy520ai/opencsg-model-pricing/blob/main/transparency-audit.mjs">transparency-audit.mjs</a>。</p>
-<p class="sub">想拿同样的方法量你自己的网关：<a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a>（零依赖 CLI，一次无鉴权 GET；它把"我没读到"和"它没有价格"分成两档判词，所以不会替服务商背锅）。本页那张表就是它跑出来的。</p>
+<p class="sub">想量你自己的网关：<a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a>（零依赖 CLI，一次无鉴权 GET，判词分 <code>YES</code>/<code>NO</code>/<code>AUTH</code>/<code>ERR</code>/<code>UNKNOWN</code> 五档——把"我没读到"和"它没价格"分开，401 则算作明确的"否"）。五家每日自动读数见它的 <a href="https://github.com/happy520ai/gateway-price-check/blob/main/RESULTS.md">RESULTS.md</a>。<br><strong>说明：</strong>本页那张表<strong>不是</strong>那个工具跑的，是本页自己的浏览器代码 + 仓库里的 <code>transparency-audit.mjs</code> 各算一遍。两套独立实现同指一件事，是有意为之——只有一台仪器时，你分不清读到的是世界还是仪器。</p>
 <p class="sub">要注册的话 <a href="https://opencsg.com/signup?invitationCode=7OV90VFJG1" rel="nofollow sponsored">这个链接带我的邀请码</a>；模型保真度我未验证（没有 key，没发过 chat 请求）。</p>
 </div>
 
