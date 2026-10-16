@@ -83,7 +83,15 @@ if (/<td/i.test(CALC)) fails.push('计算器正文出现静态 <td>：价格表�
 if (/¥\s?\d/.test(CALC)) fails.push('计算器正文出现写死的 ¥ 金额：同上');
 if (!HTML.includes('cost-calculator.html')) fails.push('主页未链到计算器（少一个内链，也少一处会过期的入口）');
 
-// 7. llms.txt 必须与两页同源披露
+// 7b. 审计页：结论必须带着那个反例，且不许写死计数
+const AUDIT_RAW = readFileSync(fileURLToPath(new URL('./audit.html', import.meta.url)), 'utf8');
+const AUDIT = AUDIT_RAW.replace(/<script[\s\S]*?<\/script>/g, '');
+for (const n of ['利益披露', 'OpenRouter', '不是透明度差异', 'ai.space.opencsg.com/v1/models']) {
+  if (!AUDIT.includes(n)) fails.push('审计页缺少：' + n);
+}
+if (/<td>\d/.test(AUDIT)) fails.push('审计页正文写死了计数：读数应由 JS 现场测，否则会和两个端点的实时值脱节');
+
+// 8. llms.txt 必须与两页同源披露
 const LLMS = readFileSync(fileURLToPath(new URL('./llms.txt', import.meta.url)), 'utf8');
 // 判"有没有声明未证实"要按性质匹配，别钉死某一种措辞（首版钉「未证实」，
 // 而 llms.txt 写的是「未被证实」，守卫红的是我自己写的字，不是文档缺了什么）

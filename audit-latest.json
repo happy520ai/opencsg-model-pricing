@@ -1,0 +1,29 @@
+{
+  "as_of": "2026-10-16",
+  "rows": [
+    {
+      "name": "OpenCSG",
+      "url": "https://ai.space.opencsg.com/v1/models",
+      "ms": 643,
+      "total": 23,
+      "priced": 21,
+      "inputPriced": 18,
+      "cache": 12,
+      "currencyField": 21,
+      "upstream": 13,
+      "sample": "{\"input_token_price\":{\"currency\":\"￥\",\"price_per_million\":13.2,\"cached_price_per_million\":1.65},\"output_token_price\":{\"cu"
+    },
+    {
+      "name": "OpenRouter",
+      "url": "https://openrouter.ai/api/v1/models",
+      "ms": 230,
+      "total": 466,
+      "priced": 466,
+      "inputPriced": 466,
+      "cache": 310,
+      "currencyField": 0,
+      "upstream": 466,
+      "sample": "{\"prompt\":\"0.00000025\",\"completion\":\"0.000001\"}"
+    }
+  ]
+}
