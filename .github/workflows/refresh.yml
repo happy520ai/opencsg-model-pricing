@@ -72,3 +72,25 @@ jobs:
             echo "请按 \`data-snapshot.md\` 的最新返回值重写正文，或确认这些行确实该下线。"
           } > drift.md
           gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file drift.md
+
+      # 数字确认与实时接口对得上，才告诉搜索引擎"这页是新的"。
+      # 漂移时不 ping，避免把过期读数推给检索端。
+      - name: Ping IndexNow when figures verified fresh
+        if: steps.verify.outcome == 'success'
+        env:
+          INDEXNOW_URLS: >-
+            https://happy520ai.github.io/opencsg-model-pricing/
+            https://happy520ai.github.io/opencsg-model-pricing/cost-calculator.html
+            https://happy520ai.github.io/opencsg-model-pricing/llms.txt
+        run: |
+          set -euo pipefail
+          KEY=$(ls | grep -E '^[0-9a-f]{32}\.txt$' | head -1 | cut -d. -f1)
+          if [ -z "$KEY" ]; then echo "REFUSED: 找不到 IndexNow key 文件"; exit 1; fi
+          LIST=$(for u in $INDEXNOW_URLS; do printf '"%s",' "$u"; done | sed 's/,$//')
+          printf '{"host":"happy520ai.github.io","key":"%s","urlList":[%s]}' "$KEY" "$LIST" > ping.json
+          code=$(curl -s -o ping-resp.txt -w '%{http_code}' --max-time 30 \
+            -X POST -H "Content-Type: application/json; charset=utf-8" \
+            --data @ping.json https://api.indexnow.org/indexnow)
+          echo "indexnow http=$code"
+          # 202/200 受理；其余算失败，别把"没送到"读成"已提交"
+          case "$code" in 200|202) exit 0;; *) cat ping-resp.txt; exit 1;; esac
