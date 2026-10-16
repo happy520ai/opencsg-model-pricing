@@ -179,6 +179,18 @@ for (const page of ['./index.html', './cost-calculator.html', './audit.html']) {
 // 只有这一段真的没添新失败时才许印 ok（否则"ok"成了无条件装饰）。
 if (fails.length === stuckBefore) ok.push('三页均无"永远加载中"式残留');
 
+// 11. 邀请链接不会自动带码（2026-10-17 实测注册页 Enter your code 为空）。
+//     任何放了注册链接却没有"手填"指示的页面，都会让读者白注册、让推荐白做。
+const CODE_LINK = 'invitationCode=7OV90VFJG1';
+for (const page of ['./index.html', './cost-calculator.html', './audit.html', './llms.txt']) {
+  const raw = readFileSync(fileURLToPath(new URL(page, import.meta.url)), 'utf8');
+  if (!raw.includes(CODE_LINK)) continue;
+  if (!/手填|Enter your code/.test(raw)) {
+    fails.push(`${page} 放了注册链接却没写"要手填邀请码"——链接不带码，读者会白注册`);
+  }
+}
+ok.push('所有含注册链接的页面都明示"需手填邀请码"');
+
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 // 用 exitCode 而不是 process.exit()：Windows 上强退会与未排空的 fetch handle
 // 相撞，触发 libuv 断言并把退码变成 127（真机复现过），判据就不可信了。
