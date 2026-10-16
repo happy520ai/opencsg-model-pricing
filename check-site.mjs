@@ -105,6 +105,16 @@ for (const b of ['立即领取99元', '注册送99', '所有国产模型都有']
   }
 }
 
+// 8b. sitemap 与 IndexNow 清单必须同源，否则新增页面会静默漏交
+const SITEMAP = readFileSync(fileURLToPath(new URL('./sitemap.xml', import.meta.url)), 'utf8');
+const WF = readFileSync(fileURLToPath(new URL('./.github/workflows/refresh.yml', import.meta.url)), 'utf8');
+const locs = [...SITEMAP.matchAll(/<loc>(https?:\/\/[^<]+)<\/loc>/g)].map(m => m[1]);
+if (locs.length === 0) fails.push('sitemap 里没有 <loc>，比对失去意义');
+for (const u of locs) {
+  if (!WF.includes(u)) fails.push('页面在 sitemap 里但没进 IndexNow 提交清单：' + u);
+}
+if (locs.length) ok.push('sitemap ' + locs.length + ' 条 URL 均已纳入 IndexNow 清单');
+
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 if (fails.length) { console.error('\nFAIL:\n' + fails.map(x => '  X  ' + x).join('\n')); process.exit(1); }
 console.log('\nALL CHECKS PASSED');

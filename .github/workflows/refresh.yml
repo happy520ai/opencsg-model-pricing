@@ -81,6 +81,7 @@ jobs:
           INDEXNOW_URLS: >-
             https://happy520ai.github.io/opencsg-model-pricing/
             https://happy520ai.github.io/opencsg-model-pricing/cost-calculator.html
+            https://happy520ai.github.io/opencsg-model-pricing/audit.html
             https://happy520ai.github.io/opencsg-model-pricing/llms.txt
         run: |
           set -euo pipefail
