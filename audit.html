@@ -106,6 +106,9 @@ curl -s https://openrouter.ai/api/v1/models      | head -c 400</code></pre>
   <p><input id="u" type="url" size="54" placeholder="https://your-gateway.example/v1 或 …/v1/models">
   <button id="go" type="button">测这个端点</button></p>
   <p class="sub" id="pr" aria-live="polite">还没测。粘一个 base_url 就行，会自动补成 <code>/v1/models</code> 并把最终地址显示出来。</p>
+  <p><button id="cp" type="button" hidden>复制成分享链接</button>
+  <span class="sub" id="cpm" hidden>链接只带上你刚看到的地址与结论；对方打开后仍要自己点一次才会发出请求。</span></p>
+  <p class="warn" id="shared" hidden></p>
 </div>
 <noscript><p class="warn">没开 JS 时用上面的 curl；判词规则在 <a href="./transparency-audit.mjs">transparency-audit.mjs</a> 里，跑的是同一套。</p></noscript>
 
@@ -229,6 +232,7 @@ async function probeOwn() {
     const ms = Date.now() - t0;
     if (!res.ok) {
       const authed = res.status === 401 || res.status === 403;
+      noteResult(url, authed ? 'AUTH' : 'ERR', 'HTTP ' + res.status);
       pr.innerHTML = '<code>' + url.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) +
         '</code> · ' + ms + 'ms · <strong>HTTP ' + res.status + ' → ' +
         (authed ? 'AUTH：不注册连清单都看不到。对"免登录能不能看价"，这就是否——不是探针失灵。'
@@ -243,6 +247,7 @@ async function probeOwn() {
     if (d.length === 0) { pr.textContent = 'data[] 是空的 → 探针看不见东西，不能报"没有价格" → ERR：不可判。'; return; }
     const m = measure(d);
     const lvl = m.priced > 0 ? 'YES' : 'NO';
+    noteResult(url, lvl, d.length + ' 条 / ' + m.priced + ' 条带价');
     pr.innerHTML = '<code>' + url.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) +
       '</code> · ' + ms + 'ms · <strong>' + lvl + '</strong>：' + d.length + ' 条清单，' +
       m.priced + ' 条带任意价格字段（' + m.inputPriced + ' 条带输入价）· 缓存价 ' + m.cache +
@@ -257,11 +262,74 @@ async function probeOwn() {
     go.disabled = false;
   }
 }
+// ---- 分享：把「我测到 X」变成一条可核对的链接，而不是又一张截图 ----
+// 三条硬规则：
+// 1) 带参数的页面**绝不自动发请求**——只把地址填进框里，对方必须自己点一次。
+//    否则任何人都能构造一个让访客浏览器去打任意 URL 的链接。
+// 2) 链接里带的结论一律标成「别人说的」，本页不替它背书。
+// 3) 所有来自 URL 的字符串只走 textContent，不进 innerHTML。
+let lastResult = null;
+
+function noteResult(url, lvl, detail) {
+  lastResult = { url, lvl, detail };
+  document.getElementById('cp').hidden = false;
+}
+
+function shareLink() {
+  if (!lastResult) return '';
+  const q = new URLSearchParams({ probe: lastResult.url, v: lastResult.lvl });
+  if (lastResult.detail) q.set('d', lastResult.detail);
+  return location.origin + location.pathname + '?' + q.toString();
+}
+
+function showSharedClaim() {
+  const q = new URLSearchParams(location.search);
+  const probe = q.get('probe');
+  if (!probe) return;
+  const box = document.getElementById('shared');
+  const lvl = (q.get('v') || '?').slice(0, 7);
+  const detail = (q.get('d') || '').slice(0, 60);
+  let ok = false, host = '';
+  try { const u = new URL(probe); ok = /^https?:$/.test(u.protocol); host = u.host; } catch { ok = false; }
+  // 先填框，不请求。
+  if (ok) document.getElementById('u').value = probe;
+  box.hidden = false;
+  box.textContent = '';
+  const head = document.createElement('strong');
+  head.textContent = ok
+    ? '有人用这个链接带来一句话：「' + host + ' 的免登录清单判词是 ' + lvl + '」。'
+    : '这个链接带了一个不合法的 probe 参数，已忽略；没有发出任何请求。';
+  box.appendChild(head);
+  if (ok) {
+    box.appendChild(document.createTextNode(
+      ' 这句话不是本页测的，链接里写什么就是什么——所以点上面的「测这个端点」自己复核一遍。' +
+      (detail ? '（对方还贴了：' + detail + '）' : '') +
+      ' 请求仍由你的浏览器直接发出，不带 key、不带 cookie。'));
+  }
+}
+
+function wireShare() {
+  const cp = document.getElementById('cp');
+  cp.addEventListener('click', async () => {
+    const url = shareLink();
+    const msg = document.getElementById('cpm');
+    msg.hidden = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      msg.textContent = '已复制。链接里只有地址与判词，没有 key、没有 cookie、也没有你的任何信息。';
+    } catch {
+      msg.textContent = '剪贴板不可用，手动复制：' + url;
+    }
+  });
+}
+
 document.getElementById('go').addEventListener('click', probeOwn);
 document.getElementById('u').addEventListener('keydown', ev => { if (ev.key === 'Enter') probeOwn(); });
 
 run();
 loadWide();
+wireShare();
+showSharedClaim();
 </script>
 </body>
 </html>

@@ -265,6 +265,26 @@ if (AUDIT_RAW.includes("'AUTH：") && AUDIT_RAW.includes("'ERR：")) {
   ok.push('自测件把 401/403 归 AUTH、把 404/空清单/错形状归 ERR（两档各有分支，没被压平）');
 }
 
+// 9d. 分享链接的安全不变量。这三条一旦破掉，功能就从「可核对的链接」变成
+//     「任何人可构造、让访客浏览器去打任意 URL 的向量」，所以必须机械锁住。
+const claimFn = (AUDIT_RAW.match(/function showSharedClaim\(\)[\s\S]*?\n\}/) || [''])[0];
+if (!claimFn) fails.push('找不到 showSharedClaim —— 分享件被删了？');
+else {
+  if (/probeOwn\s*\(/.test(claimFn)) fails.push('showSharedClaim 里会自动发请求（probeOwn）—— 带参链接不该自己打任意 URL');
+  else ok.push('带参链接不自动发请求（要访客自己点一次）');
+  if (/innerHTML/.test(claimFn)) fails.push('showSharedClaim 用了 innerHTML —— URL 参数可注入 HTML');
+  else if (!claimFn.includes('textContent')) fails.push('showSharedClaim 没走 textContent');
+  else ok.push('分享横幅只走 textContent（URL 参数无法注入）');
+  for (const s of ['不是本页测的', '没有发出任何请求']) {
+    if (!claimFn.includes(s)) fails.push('分享横幅缺关键说明：' + s);
+  }
+}
+const linkFn = (AUDIT_RAW.match(/function shareLink\(\)[\s\S]*?\n\}/) || [''])[0];
+if (!linkFn) fails.push('找不到 shareLink');
+else if (/key|token|authorization|cookie/i.test(linkFn)) {
+  fails.push('shareLink 里出现疑似凭据字样 —— 分享链接不该带任何 key');
+} else ok.push('分享链接只带地址与判词，不含凭据字样');
+
 // 9b. 不执行 JS 的读者必须还能看到数字（2026-10-17 实测：两张表都是"加载中…"，
 //     等于把最有转发价值的横评对爬虫和 AI 助手完全藏起来了）。
 // 这条判据原先写死 ['466/466','457/471','0/81'] —— 一个防手抄数字的门，自己手抄了数字。
