@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const HTML = readFileSync(fileURLToPath(new URL('./index.html', import.meta.url)), 'utf8');
+const LLMS_EARLY = readFileSync(fileURLToPath(new URL('./llms.txt', import.meta.url)), 'utf8');
 const fails = [];
 const ok = [];
 
@@ -51,6 +52,27 @@ else {
   else if (Number(snapMatch[1]) !== liveCount)
     fails.push('页面快照数写的是 ' + snapMatch[1] + '，实时已是 ' + liveCount + '（清单会漂移，必须重生成）');
   else ok.push('快照条数 ' + liveCount + ' 与实时一致');
+
+  // og:image:alt 与 llms.txt 的条数以前只被"字段在场"覆盖，数字本身没人比对。
+  // 被转发的那一段文字，恰恰是最不该留着旧数字的地方。
+  const livePriced = j.data.filter(m => m?.metadata?.pricing?.input_token_price?.price_per_million != null).length;
+  const alt = (HTML.match(/property="og:image:alt" content="([^"]*)"/) || [])[1] || '';
+  const altM = alt.match(/(\d+) 条模型、(\d+) 条带价/);
+  if (!altM) fails.push('og:image:alt 里读不到「N 条模型、M 条带价」，无法比对（格式变了要同步改这里）');
+  else if (Number(altM[1]) !== liveCount || Number(altM[2]) !== livePriced)
+    fails.push(`og:image:alt 写 ${altM[1]} 条模型 / ${altM[2]} 条带价，实时是 ${liveCount} / ${livePriced}`);
+  else ok.push(`og:image:alt 的 ${altM[1]}/${altM[2]} 与实时一致`);
+
+  const fm = LLMS_EARLY.match(/<!--FACTS:START-->([\s\S]*?)<!--FACTS:END-->/);
+  if (!fm) fails.push('llms.txt 缺 FACTS 标记（该段应由 refresh-model-table.mjs 生成）');
+  else {
+    const tot = (fm[1].match(/免登录返回 (\d+) 条/) || [])[1];
+    const pri = (fm[1].match(/其中 (\d+) 条公布输入单价/) || [])[1];
+    if (tot === undefined || pri === undefined) fails.push('llms.txt FACTS 段读不到条数句式，格式变了要同步改守卫');
+    else if (Number(tot) !== liveCount || Number(pri) !== livePriced)
+      fails.push(`llms.txt 关键事实写 ${tot}/${pri}，实时 ${liveCount}/${livePriced}（跑 refresh-model-table.mjs 重生成）`);
+    else ok.push(`llms.txt 关键事实 ${tot}/${pri} 与实时一致（生成物，非手抄）`);
+  }
 
   const kimi = j.data.filter(m => /kimi|moonshot/i.test(m.id + (m.metadata?.repo_path ?? '')));
   if (kimi.length > 0) ok.push('注意：接口本次出现 Kimi 系 ' + kimi.length + ' 条，禁用条款可解除');

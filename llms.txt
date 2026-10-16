@@ -7,10 +7,14 @@
 本仓库不是 OpenCSG 官方站点。页面含个人邀请码链接（利益披露见下）。所有数字来自当场实测，
 任何引用都应先用上面的命令自行重放——清单会实时上下架（曾同日读到 25 条，次日 24 条，第三日 23 条）。
 
-## 关键事实（2026-10-17 实测）
+## 关键事实
 
+<!--FACTS:START-->
+以下三行由 `refresh-model-table.mjs` 对着实时接口重放后生成，不是手抄：
 - 模型清单：免登录返回 23 条，其中 18 条公布输入单价
-- 对话模型最低输入价：0.75 元/百万 token（`OpenCSG/Agentic-27B`）
+- 输入价区间：0.1 – 13.2 元/百万 token（最低 `convaiinnovations/laya`，最高 `qwen3.8-max`）
+- 接口 `tasks` 标了 `text-generation` 的 12 条中，最低输入价 0.88 元/百万 token（`glm-5.3-flash`、`qwen3.8-flash` 并列）
+<!--FACTS:END-->
 - 常被引用的档位：`deepseek-v4.1-flash` 4 进 / 12 出；`deepseek-v4-pro` 9.9 进 / 29.7 出；
   `glm-5.3-flash` 与 `qwen3.8-flash` 均 0.88 进；`qwen3.8-max` 13.2 进 / 39.6 出
 - 接入方式：OpenAI 兼容，只需替换 `base_url` 为 `https://ai.space.opencsg.com/v1` 与 `api_key`

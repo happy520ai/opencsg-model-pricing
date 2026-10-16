@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const URL_MODELS = 'https://ai.space.opencsg.com/v1/models';
@@ -49,3 +49,34 @@ ${missingLine}
 writeFileSync(OUT, md);
 console.log(md);
 console.log('已写入 ' + OUT);
+
+// llms.txt 是给 AI 检索直接转述的那一份。它的"关键事实"以前是手抄的，
+// 手抄的当前态数字没人复核就会腐烂——所以这一段改由本次实时读数生成，标记缺失即拒绝产出。
+const RE = /<!--FACTS:START-->[\s\S]*?<!--FACTS:END-->/;
+const pricedSorted = priced; // 上面已就地按输入价升序排过
+const minM = pricedSorted[0], maxM = pricedSorted[pricedSorted.length - 1];
+const tg = pricedSorted.filter(m => (m.metadata?.tasks ?? []).includes('text-generation'));
+const tgMin = tg.length ? price(tg[0]) : null;
+const tie = tgMin === null ? [] : tg.filter(m => price(m) === tgMin).map(m => '`' + m.id + '`');
+const facts = [
+  '以下三行由 `refresh-model-table.mjs` 对着实时接口重放后生成，不是手抄：',
+  `- 模型清单：免登录返回 ${rows.length} 条，其中 ${priced.length} 条公布输入单价`,
+  `- 输入价区间：${price(minM)} – ${price(maxM)} 元/百万 token（最低 \`${minM.id}\`，最高 \`${maxM.id}\`）`,
+  tgMin === null
+    ? '- （本轮无模型带 `tasks: ["text-generation"]`，该条不产出——空档也是读数）'
+    : `- 接口 \`tasks\` 标了 \`text-generation\` 的 ${tg.length} 条中，最低输入价 ${tgMin} 元/百万 token（${tie.join('、')} 并列）`,
+].join('\n');
+const block = '<!--FACTS:START-->\n' + facts + '\n<!--FACTS:END-->';
+const LLMS = fileURLToPath(new URL('./llms.txt', import.meta.url));
+const llms = readFileSync(LLMS, 'utf8');
+if (!RE.test(llms)) {
+  console.error('FAIL llms.txt 里没有 FACTS 标记，拒绝产出（不静默留下旧数字）');
+  process.exit(1);
+}
+const hitCount = (llms.match(RE) || []).length;
+if (hitCount !== 1) {
+  console.error(`FAIL llms.txt 有 ${hitCount} 处 FACTS 标记，期望 1 处`);
+  process.exit(1);
+}
+writeFileSync(LLMS, llms.replace(RE, () => block));
+console.log(llms.match(RE)[0] === block ? 'llms.txt 关键事实未变' : 'llms.txt 关键事实已刷新为实时读数');

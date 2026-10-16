@@ -51,8 +51,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain data-snapshot.md audit.html gateway-readings.json og-image.png audit-og.png)" ]]; then
-            git add data-snapshot.md audit.html gateway-readings.json og-image.png audit-og.png
+          if [[ -n "$(git status --porcelain data-snapshot.md llms.txt audit.html gateway-readings.json og-image.png audit-og.png)" ]]; then
+            git add data-snapshot.md llms.txt audit.html gateway-readings.json og-image.png audit-og.png
             git commit -m "data: refresh snapshot and no-JS readings"
             git push
           else
