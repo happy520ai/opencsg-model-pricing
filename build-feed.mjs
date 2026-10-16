@@ -46,7 +46,9 @@ const factsBody = 'OpenCSG /v1/models 免登录重放（' + snapDate + '）：\n
   '\n\n重放：curl -s https://ai.space.opencsg.com/v1/models　清单会实时上下架，引用前请自行复核。';
 
 const campaignBody = '状态：' + campaign.state + '。依据：' + campaign.why +
-  '（读数生于 ' + campaign.checked_at + '，来源是厂商自己的 broadcasts/active 与 internal_api/campaigns）' +
+  // 只到"日"：完整到秒的复核时刻每天都动，那样这份 feed 每天都会被重提交一次，
+  // 而我想要的性质是"读数没变 ⇒ 文件不变"。精确时刻留在 campaign-status.json 里，没丢。
+  '（本条复核于 ' + campaign.checked_at.slice(0, 10) + '，来源是厂商自己的 broadcasts/active 与 internal_api/campaigns）' +
   '\n因此不要把"注册送 50 元 / 邀请得 99 元"当现行权益转述。另：注册链接不会自动带入邀请码。';
 
 const entry = (id, path, title, updated, body) =>
