@@ -191,6 +191,16 @@ for (const page of ['./index.html', './cost-calculator.html', './audit.html', '.
 }
 ok.push('所有含注册链接的页面都明示"需手填邀请码"');
 
+// 12. 提到 50/99 元额度的文件，必须同时带上"活动可能已收官"的限定。
+//     这些句子在收官之后逐字仍"曾经为真"，却已变成虚假承诺——llms.txt 还会被 AI 直接转述。
+for (const f of ['./index.html', './cost-calculator.html', './audit.html', './llms.txt', './README.md']) {
+  const raw = readFileSync(fileURLToPath(new URL(f, import.meta.url)), 'utf8');
+  if (/50 元|99 元/.test(raw) && !/收官|已失效/.test(raw)) {
+    fails.push(`${f} 写了额度数字却没有"活动可能已收官"限定语——会被当成现行承诺`);
+  }
+}
+ok.push('所有含额度数字的文件都带活动状态限定');
+
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 // 用 exitCode 而不是 process.exit()：Windows 上强退会与未排空的 fetch handle
 // 相撞，触发 libuv 断言并把退码变成 127（真机复现过），判据就不可信了。
