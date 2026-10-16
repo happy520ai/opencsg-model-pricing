@@ -130,10 +130,12 @@ function render() {
   priced.sort((a, b) => a.cost - b.cost);
 
   const worst = priced.length ? priced[priced.length - 1].cost : 0;
-  const cell = r => '<td>' + r.id + '</td><td>' + r.inp + '</td><td>' + (r.cached ?? '-') + '</td>';
+  // 接口回浮点原值（glm-5.2 输出价是 15.400000000000002），直接印出来像数据坏了。
+  const fmt = v => (v === null || v === undefined) ? '-' : String(Number(Number(v).toPrecision(10)));
+  const cell = r => '<td>' + r.id + '</td><td>' + fmt(r.inp) + '</td><td>' + fmt(r.cached) + '</td>';
   const body = priced.map((r, i) =>
     '<tr' + (i === 0 ? ' class="best"' : '') + '>' + cell(r) +
-    '<td>' + r.outp + '</td><td>¥' + r.cost.toFixed(2) + '</td>' +
+    '<td>' + fmt(r.outp) + '</td><td>¥' + r.cost.toFixed(2) + '</td>' +
     '<td>' + (worst > 0 ? (r.cost / worst * 100).toFixed(1) + '%' : '-') + '</td></tr>'
   ).join('') + incomplete.map(r =>
     '<tr><td>' + r.id + '</td>' + cell(r) +
