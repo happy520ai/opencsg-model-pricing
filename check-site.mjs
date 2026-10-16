@@ -241,6 +241,30 @@ if (datedClaim) {
   }
 }
 
+// 9c. 审计页那张「当场测你自己的网关」卡片：判词口径必须与 CLI 一致，
+//     而且页面上那句「不带 cookie」必须是代码事实，不是宣传语。
+for (const n of ['id="u"', 'id="go"', 'resolveModelsUrl']) {
+  if (!AUDIT_RAW.includes(n)) fails.push('审计页自测件缺 ' + n);
+}
+// 「说了不发 cookie」与「真的不发」是两件事：逐个 fetch 查，不按数量猜。
+const fetches = AUDIT_RAW.match(/fetch\([^)]*\)/g) || [];
+if (fetches.length === 0) fails.push('审计页找不到任何 fetch —— 自测件被删了？');
+const sloppy = fetches.filter(f => !f.includes("credentials: 'omit'"));
+for (const f of sloppy) fails.push('有个 fetch 没带 credentials: omit：' + f.slice(0, 70));
+if (fetches.length && !sloppy.length) {
+  ok.push('审计页 ' + fetches.length + ' 个 fetch 全部 omit credentials（页面声明与代码一致）');
+}
+// 五档语义不许在浏览器实现里被压平。注意：判词文案是**拼出来的**
+// （' → ' + (authed ? 'AUTH…' : 'ERR…')），所以查「→ AUTH」这种运行时字串永远查不到——
+// 我第一版就是这么写的，被自己的判据判红才发现。要查的是结构：谁走 AUTH 分支、谁走 ERR 分支。
+for (const v of ['res.status === 401', 'res.status === 403', "'AUTH：", "'ERR：",
+  'Array.isArray(d)', 'd.length === 0', '不构成模型保真度证明']) {
+  if (!AUDIT_RAW.includes(v)) fails.push('审计页自测件缺结构要件：' + v);
+}
+if (AUDIT_RAW.includes("'AUTH：") && AUDIT_RAW.includes("'ERR：")) {
+  ok.push('自测件把 401/403 归 AUTH、把 404/空清单/错形状归 ERR（两档各有分支，没被压平）');
+}
+
 // 9b. 不执行 JS 的读者必须还能看到数字（2026-10-17 实测：两张表都是"加载中…"，
 //     等于把最有转发价值的横评对爬虫和 AI 助手完全藏起来了）。
 // 这条判据原先写死 ['466/466','457/471','0/81'] —— 一个防手抄数字的门，自己手抄了数字。

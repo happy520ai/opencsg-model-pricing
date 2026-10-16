@@ -100,6 +100,15 @@ pre{background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:1
 curl -s https://openrouter.ai/api/v1/models      | head -c 400</code></pre>
 <p class="sub">两个端点都无需 key。若你所在网络被拦，本页会退回仓库里的 <a href="./audit-latest.json">audit-latest.json</a> 快照并标明是快照。</p>
 
+<div class="card">
+  <p class="sub"><strong>当场测你自己的网关。</strong>请求由这个浏览器直接发出：不带 <code>Authorization</code>、
+  不带 cookie（<code>credentials: "omit"</code>）、不发任何对话请求。页面不经过任何中转，也拿不到你的 key。</p>
+  <p><input id="u" type="url" size="54" placeholder="https://your-gateway.example/v1 或 …/v1/models">
+  <button id="go" type="button">测这个端点</button></p>
+  <p class="sub" id="pr" aria-live="polite">还没测。粘一个 base_url 就行，会自动补成 <code>/v1/models</code> 并把最终地址显示出来。</p>
+</div>
+<noscript><p class="warn">没开 JS 时用上面的 curl；判词规则在 <a href="./transparency-audit.mjs">transparency-audit.mjs</a> 里，跑的是同一套。</p></noscript>
+
 <p class="sub">数据快照同时存在 <a href="./audit-latest.md">audit-latest.md</a>；生成脚本 <a href="https://github.com/happy520ai/opencsg-model-pricing/blob/main/transparency-audit.mjs">transparency-audit.mjs</a>。</p>
 <p class="sub">想量你自己的网关：<a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a>（零依赖 CLI，一次无鉴权 GET，判词分 <code>YES</code>/<code>NO</code>/<code>AUTH</code>/<code>ERR</code>/<code>UNKNOWN</code> 五档——把"我没读到"和"它没价格"分开，401 则算作明确的"否"）。<!--SIZETXT:START-->11 家每日自动读数<!--SIZETXT:END-->见它的 <a href="https://github.com/happy520ai/gateway-price-check/tree/main/results/history">按日归档的原始读数</a>（<!--SUMMARY:START-->截至 2026-10-17：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key<!--SUMMARY:END-->）。<br><strong>两张表的来源不同，别说混了：</strong>第一张「现场读数」<strong>不是</strong>那个工具跑的，是本页自己的浏览器代码 + 仓库里的 <code>transparency-audit.mjs</code> 各算一遍；第二张「11 家全景」<strong>才是</strong>那个工具每日产出的拷贝，本页只现拉不重算。两套独立实现同指一件事是有意为之——只有一台仪器时，你分不清读到的是世界还是仪器。</p>
 <p class="sub">要注册的话 <a href="https://opencsg.com/signup?invitationCode=7OV90VFJG1" rel="nofollow sponsored">这个链接带我的邀请码</a>，但<strong>链接不会自动带入——注册页的 <code>Enter your code</code> 框要手填 <code>7OV90VFJG1</code></strong>（实测该框为空）；模型保真度我未验证（没有 key，没发过 chat 请求）。</p>
@@ -130,7 +139,7 @@ async function run() {
   let failed = null;
   for (const t of TARGETS) {
     try {
-      const r = await fetch(t.url, { method: 'GET' });
+      const r = await fetch(t.url, { method: 'GET', credentials: 'omit' });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       const j = await r.json();
       out.push({ name: t.name, ...measure(j.data || []) });
@@ -139,7 +148,7 @@ async function run() {
   if (failed || out.length !== TARGETS.length) {
     st.textContent = '现场重放未完成（' + (failed || '未知') + '）——下面退回仓库快照。';
     try {
-      const snap = await (await fetch('./audit-latest.json')).json();
+      const snap = await (await fetch('./audit-latest.json', { credentials: 'omit' })).json();
       // 快照里存的就是已测好的读数，直接渲染；别再去 measure 一个不存在的字段。
       render(snap.rows.filter(r => !r.error), true, snap.as_of);
       return;
@@ -167,7 +176,7 @@ async function loadWide() {
   const st = document.getElementById('wide-status');
   const tb = document.getElementById('wide-tb');
   try {
-    const res = await fetch(WIDE_URL, { method: 'GET' });
+    const res = await fetch(WIDE_URL, { method: 'GET', credentials: 'omit' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const doc = await res.json();
     const rows = doc.results || [];
@@ -188,6 +197,68 @@ async function loadWide() {
     st.textContent = '实时拉取失败（' + e.message + '）——下面保留的是页内静态快照，可能比现在旧一天，日期见表格下方。';
   }
 }
+
+// ---- 自测：让读者当场量自己那家，而不是只读我的结论 ----
+// 判词口径与 CLI 一致：401/403 是 AUTH（对"免登录能否看价"就是明确的否），
+// 网络/形状/空清单才是 ERR（不可判）。把前者并进后者会系统性高估行业透明度。
+function resolveModelsUrl(raw) {
+  const u = new URL(raw);
+  let p = u.pathname.replace(/\/+$/, '');
+  if (/\/models$/.test(p)) return u.href;
+  if (p === '' || p === '/') p = '/v1';
+  u.pathname = p + '/models';
+  return u.href;
+}
+
+async function probeOwn() {
+  const pr = document.getElementById('pr');
+  const go = document.getElementById('go');
+  const raw = document.getElementById('u').value.trim();
+  if (!raw) { pr.textContent = '先填一个端点地址。'; return; }
+  let url;
+  try { url = resolveModelsUrl(raw); }
+  catch (e) { pr.textContent = '这不是合法 URL（' + e.message + '）——没发任何请求。'; return; }
+
+  go.disabled = true;
+  pr.textContent = '正在请求 ' + url + ' …（不带 key、不带 cookie）';
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+  const t0 = Date.now();
+  try {
+    const res = await fetch(url, { method: 'GET', credentials: 'omit', signal: ctrl.signal });
+    const ms = Date.now() - t0;
+    if (!res.ok) {
+      const authed = res.status === 401 || res.status === 403;
+      pr.innerHTML = '<code>' + url.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) +
+        '</code> · ' + ms + 'ms · <strong>HTTP ' + res.status + ' → ' +
+        (authed ? 'AUTH：不注册连清单都看不到。对"免登录能不能看价"，这就是否——不是探针失灵。'
+                : 'ERR：不可判。这不是"它没标价"，是我没读到。') + '</strong>';
+      return;
+    }
+    let j;
+    try { j = await res.json(); }
+    catch (e) { pr.textContent = 'HTTP 200 但响应不是 JSON（' + e.message + '）→ ERR：不可判，别记成"没有价格"。'; return; }
+    const d = j.data;
+    if (!Array.isArray(d)) { pr.textContent = '返回里没有 data[] 数组 → 不是 OpenAI 兼容清单形状 → ERR：不可判。'; return; }
+    if (d.length === 0) { pr.textContent = 'data[] 是空的 → 探针看不见东西，不能报"没有价格" → ERR：不可判。'; return; }
+    const m = measure(d);
+    const lvl = m.priced > 0 ? 'YES' : 'NO';
+    pr.innerHTML = '<code>' + url.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) +
+      '</code> · ' + ms + 'ms · <strong>' + lvl + '</strong>：' + d.length + ' 条清单，' +
+      m.priced + ' 条带任意价格字段（' + m.inputPriced + ' 条带输入价）· 缓存价 ' + m.cache +
+      ' · 显式币种 ' + m.currencyField + ' · 上游标识 ' + m.upstream +
+      (lvl === 'NO' ? '<br>清单公开但一个价都不标——<strong>「公开清单」和「公开价格」是两件事</strong>。' : '') +
+      '<br><span class="sub">本页从不发送对话请求，所以这不构成模型保真度证明。</span>';
+  } catch (e) {
+    pr.textContent = '请求失败（' + e.message + '）→ ERR：不可判。常见原因是该端点不允许跨域读取（CORS），' +
+      '这不代表它收费或不收费——请用上面的 curl 复核。';
+  } finally {
+    clearTimeout(timer);
+    go.disabled = false;
+  }
+}
+document.getElementById('go').addEventListener('click', probeOwn);
+document.getElementById('u').addEventListener('keydown', ev => { if (ev.key === 'Enter') probeOwn(); });
 
 run();
 loadWide();
