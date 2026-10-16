@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCSG 模型价格实测 · 一条免登录命令可复现</title>
+<meta name="description" content="2026-10-16 实测：curl https://ai.space.opencsg.com/v1/models 免登录返回 24 条模型、19 条带明码标价。DeepSeek V4.1 Flash 输入 4 元/百万 token，GLM-5.3-Flash 0.88 元起。含迁移代码、融资出处与未验证项清单。">
+<meta property="og:title" content="OpenCSG 可调模型与价格：一条免登录命令自己验">
+<meta property="og:description" content="不用注册、不用 key，curl 就能拉到完整价目表。本页数字来自当日实测快照，附未验证项。">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://happy520ai.github.io/opencsg-model-pricing/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "OpenCSG 可调模型与价格实测（2026-10-16）",
+  "description": "对 OpenCSG OpenAI 兼容端点的模型清单与价格做免登录实测，附可复现命令、迁移代码与融资背景出处。",
+  "datePublished": "2026-10-16",
+  "author": {"@type": "Person", "name": "个人技术博主"},
+  "about": {"@type": "Organization", "name": "OpenCSG 开放传神", "url": "https://opencsg.com"}
+}
+</script>
+<style>
+:root{--bg:#0b0d10;--fg:#e8eaf0;--mut:#98a2b3;--card:#12161c;--line:#222932;--acc:#4ee1a0;--warn:#ffb454;--red:#ff6b6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 -apple-system,"Segoe UI","Microsoft YaHei",system-ui,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+.discl{background:#2a1f0d;border-bottom:1px solid #4d3a15;color:#ffd79a;font-size:13.5px;padding:10px 0}
+.discl a{color:#ffe8c2}
+h1{font-size:34px;line-height:1.25;margin:28px 0 10px;letter-spacing:-.3px}
+h2{font-size:22px;margin:42px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+p{margin:12px 0}
+.sub{color:var(--mut);font-size:17px}
+pre{background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;font-size:14px}
+code{font-family:"Cascadia Mono",Consolas,monospace}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:18px 0}
+table{width:100%;border-collapse:collapse;font-size:14.5px;margin:14px 0}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600;font-size:13px;letter-spacing:.3px}
+td.n{font-variant-numeric:tabular-nums}
+tr.hi td{background:rgba(78,225,160,.07)}
+a{color:var(--acc)}
+.badge{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
+.badge.live{border-color:#1d5b42;color:var(--acc)}
+.badge.snap{border-color:#4d3a15;color:var(--warn)}
+.cta{background:linear-gradient(135deg,#0f2a20,#12202b);border:1px solid #1d5b42;border-radius:16px;padding:22px;margin:26px 0}
+.btn{display:inline-block;background:var(--acc);color:#04140d;font-weight:700;padding:12px 20px;border-radius:10px;text-decoration:none;margin:6px 8px 6px 0}
+.btn.alt{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+ul{padding-left:20px}li{margin:7px 0}
+.warn{color:var(--warn)}.red{color:var(--red)}
+footer{color:var(--mut);font-size:13.5px;border-top:1px solid var(--line);margin-top:48px;padding:22px 0 60px}
+</style>
+</head>
+<body>
+
+<div class="discl"><div class="wrap"><strong>广告 / 利益披露：</strong>本页注册链接带个人邀请码 <code>7OV90VFJG1</code>，有人通过它注册，我会获得平台邀请奖励。本页不是 OpenCSG 官方页面，所有价格与条数均本人当日实测，出处逐条列出。</div></div>
+
+<header class="wrap">
+  <p style="padding-top:22px"><span class="badge live" id="badge">实时读数：加载中…</span> <span class="badge">快照日 2026-10-16</span></p>
+  <h1>一条不用注册、不用 key 的命令，<br>能看到它的全部模型和价格</h1>
+  <p class="sub">很多模型聚合平台要把账号建完、充完值，才知道自己到底在付多少钱。OpenCSG 的兼容端点把这件事前置了：清单是免登录开放的，所以本页每一个数字你都能自己重放。</p>
+
+  <pre><code>curl -s https://ai.space.opencsg.com/v1/models</code></pre>
+  <p class="sub" id="live-note">本页右上角会现场再打一次这个接口，把实时条数和下面的快照对比给你看。</p>
+</header>
+
+<main class="wrap">
+
+<h2>实测价格表（2026-10-16，元/百万 token）</h2>
+<p>当天返回 <strong>24</strong> 条模型，其中 <strong>19</strong> 条带输入价。我一天内跑了两次，一次 25 条、一次 24 条——<span class="warn">清单是实时上下架的</span>，做成本预算请以你自己当场重放的返回值为准，不要引用任何静态截图，包括本页。</p>
+<table>
+<thead><tr><th>模型 id</th><th>输入</th><th>输出</th><th>上游仓库</th></tr></thead>
+<tbody>
+<tr><td>glm-5.3-flash</td><td class="n">0.88</td><td class="n">3.08</td><td class="mut">-</td></tr>
+<tr><td>qwen3.8-flash</td><td class="n">0.88</td><td class="n">2.97</td><td class="mut">-</td></tr>
+<tr><td>OpenCSG/Agentic-27B</td><td class="n">0.75</td><td class="n">3</td><td>OpenCSG/Agentic-27B</td></tr>
+<tr><td>qwen3.6-plus</td><td class="n">1.5</td><td class="n">9</td><td class="mut">-</td></tr>
+<tr><td>qwen3.7-plus</td><td class="n">2.2</td><td class="n">13.2</td><td class="mut">-</td></tr>
+<tr><td>MiniMax-M2.5</td><td class="n">2.31</td><td class="n">9.24</td><td>MiniMaxAI/MiniMax-M2.5</td></tr>
+<tr><td>deepseek-v4-flash</td><td class="n">3.3</td><td class="n">9.9</td><td>deepseek-ai/DeepSeek-V4-Flash</td></tr>
+<tr class="hi"><td><strong>deepseek-v4.1-flash</strong></td><td class="n"><strong>4</strong></td><td class="n"><strong>12</strong></td><td>deepseek-ai/DeepSeek-V4.1-Flash</td></tr>
+<tr><td>glm-5.2</td><td class="n">4.4</td><td class="n">15.4</td><td>zai-org/GLM-5.2</td></tr>
+<tr><td>glm-5.1</td><td class="n">4.62</td><td class="n">18.84</td><td>zai-org/GLM-5.1</td></tr>
+<tr><td>minimax-m3</td><td class="n">4.62</td><td class="n">18.48</td><td class="mut">-</td></tr>
+<tr class="hi"><td><strong>deepseek-v4-pro</strong></td><td class="n"><strong>9.9</strong></td><td class="n"><strong>29.7</strong></td><td>deepseek-ai/DeepSeek-V4-Pro-0813</td></tr>
+<tr class="hi"><td><strong>qwen3.8-max</strong></td><td class="n"><strong>13.2</strong></td><td class="n"><strong>39.6</strong></td><td class="mut">-</td></tr>
+</tbody>
+</table>
+<p class="sub">表内只列主力对话模型；其余带价的还有 <code>convaiinnovations/laya</code> 0.1、<code>Qwen/Qwen3Guard-Gen-0.6B</code> 0.12、<code>text-embedding-3-small</code> 0.16、<code>jev-1.13</code> 0.5、<code>qwen3-rerank</code> 0.55。完整 19 条见原始快照。</p>
+
+<h2>怎么接：改动只有两行</h2>
+<p>端点是 OpenAI 兼容的，所以手上已经有 OpenAI SDK 的代码，只需要换 <code>base_url</code> 和 <code>api_key</code>。<span class="warn">诚实说明：</span>下面两个 chat 片段是按 SDK 结构写的，<strong>需要 key 才能跑通，我本人没有实测对话</strong>；我实测过的只有第三条（免登录拉清单）。这条区别我宁可写在正文里。</p>
+<pre><code>from openai import OpenAI
+import os
+
+client = OpenAI(
+    base_url="https://ai.space.opencsg.com/v1",
+    api_key=os.environ["CSG_API_KEY"],
+)
+r = client.chat.completions.create(
+    model="deepseek-v4.1-flash",
+    messages=[{"role": "user", "content": "用一句话解释 AgenticOps"}],
+)
+print(r.choices[0].message.content)</code></pre>
+<pre><code>import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://ai.space.opencsg.com/v1',
+  apiKey: process.env.CSG_API_KEY,
+});
+const r = await client.chat.completions.create({
+  model: 'qwen3.8-flash',
+  messages: [{ role: 'user', content: 'hi' }],
+});
+console.log(r.choices[0].message.content);</code></pre>
+
+<h2>这家公司是谁：逐条给出处</h2>
+<div class="card">
+<p><strong>2026-08-31 官宣完成数亿元人民币 Pre-A 轮，投后估值进入独角兽级别。</strong>本轮由静安资本、市北高新、徐汇资本、黄海金控等共同参与；此前已获得联想创投、北京国信中数、中科升哲等机构投资。资金用途指向开源 AI 基础设施、Agentic AI 平台、全球开发者生态与城市级 AI 基建。</p>
+<p class="sub">出处：<a href="https://www.jingan.gov.cn/rmtzx/003001/20260901/095144cd-2cad-4d1a-a640-7a1b7d1f2b3c.html?type=2" rel="nofollow">静安区融媒体 2026-09-01 稿</a>（政府源，正文列静安资本、市北高新、黄海金控）·<a href="https://www.chinaventure.com.cn/news/80-20260904-393112.html" rel="nofollow">投中网投融周报</a>（含徐汇资本）·<a href="https://new.qq.com/rain/a/LNK2026090520152100" rel="nofollow">腾讯新闻投融资周报</a>。</p>
+<p><strong>产品：</strong>CSGHub 提供模型、数据集、代码与 AI 应用的一站式托管、协作与共享（官网原文）。AgenticOps 是由 OpenCSG 提出的方法论（官网原文）。公司成立于 2023 年。</p>
+</div>
+
+<h2>我没能验证的部分（这部分别当成事实引用）</h2>
+<ul>
+<li class="red"><code>kimi-k3</code>：我在当日返回的 24 条里按 <code>kimi</code>/<code>moonshot</code> 关键字过滤，命中 <strong>0</strong> 条。平台别处（模型库页）是否有，我没查——所以本页不写「支持 Kimi」。</li>
+<li class="warn">部分模型只有输入价、没有输出价（如 <code>glm-5.3-flash</code> 我第一趟读到输出为空）；计费口径以官网结算页为准。</li>
+<li class="warn">额度规则：官方活动页写「新用户注册得 50 元公开福利」「邀请好友完成注册后单次 99 元、多邀多得、上不封顶」。注意 <strong>99 元是邀请人的奖励，不是新人当场到账的额度</strong>；本页不写「注册送 99 元」。</li>
+<li class="warn">产品矩阵中 AgenticHub、CSGShip/StarShip、CodeSouler、CSGLite、CSGClaw 等名称，我本轮未取得可引用的官方出处，故不在本页主张。</li>
+</ul>
+
+<div class="cta">
+<h2 style="margin-top:0;border:0;padding:0">要试的话，用这个码注册</h2>
+<p>新用户注册得 50 元平台额度；用我的邀请码，我拿到的是平台的邀请奖励（已在本页顶部披露）。</p>
+<a class="btn" href="https://opencsg.com/signup?invitationCode=7OV90VFJG1" rel="nofollow sponsored">用邀请码 7OV90VFJG1 注册</a>
+<a class="btn alt" href="https://ai.space.opencsg.com/v1/models" rel="nofollow">先自己跑一遍清单再说</a>
+<p class="sub" style="margin-bottom:0">建议顺序是第二个按钮：先重放命令，价格对得上你今天的读数，再决定要不要注册。</p>
+</div>
+
+<footer>
+<p>本页为<strong>个人推广页</strong>，与 OpenCSG 官方无隶属关系；正文含商业推广，邀请链接带个人码。数据快照日期 2026-10-16，重放命令：<code>curl -s https://ai.space.opencsg.com/v1/models</code>。价格、条数、活动额度均可能变动，引用前请当场重放。</p>
+</footer>
+
+<script>
+(async () => {
+  const badge = document.getElementById('badge');
+  const note = document.getElementById('live-note');
+  const SNAP = 24;
+  try {
+    const t0 = performance.now();
+    const res = await fetch('https://ai.space.opencsg.com/v1/models', { method: 'GET' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    const n = (j.data || []).length;
+    const ms = Math.round(performance.now() - t0);
+    badge.textContent = '实时读数：' + n + ' 条（本次 ' + ms + 'ms）';
+    badge.className = 'badge live';
+    note.textContent = n === SNAP
+      ? '现场重放与本页快照同为 ' + n + ' 条。你也可以在终端跑 curl 复核，不必只信浏览器里的这一段。'
+      : '注意：现场读到 ' + n + ' 条，与本页快照 ' + SNAP + ' 条不一致——这正是清单实时变动的证据，请以你自己的读数为准。';
+  } catch (e) {
+    badge.textContent = '实时读数：浏览器取不到（快照 ' + SNAP + ' 条）';
+    badge.className = 'badge snap';
+    note.textContent = '浏览器直连被拦（多为 CORS 或未联网），这不代表接口有问题——上面快照是我用终端 curl 实测落盘的，你用同一行 curl 就能复现。';
+  }
+})();
+</script>
+</main>
+</body>
+</html>
