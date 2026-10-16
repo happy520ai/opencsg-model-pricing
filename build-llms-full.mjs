@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const rd = (p) => readFileSync(fileURLToPath(new URL(p, import.meta.url)), 'utf8');
+const rd = (p) => readFileSync(fileURLToPath(new URL(p, import.meta.url)), 'utf8').replace(/\r\n/g, '\n');
 const region = (html, tag) => {
   const m = html.match(new RegExp('<!--' + tag + ':START-->([\\s\\S]*?)<!--' + tag + ':END-->'));
   if (!m) throw new Error('REFUSED: audit.html 缺 ' + tag + ' 标记');

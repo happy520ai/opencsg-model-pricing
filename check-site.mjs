@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const HTML = readFileSync(fileURLToPath(new URL('./index.html', import.meta.url)), 'utf8');
-const LLMS_EARLY = readFileSync(fileURLToPath(new URL('./llms.txt', import.meta.url)), 'utf8');
+const LLMS_EARLY = readFileSync(fileURLToPath(new URL('./llms.txt', import.meta.url)), 'utf8').replace(/\r\n/g, '\n');
 const fails = [];
 const ok = [];
 
@@ -382,7 +382,7 @@ else if (fullFacts !== srcFacts) fails.push('llms-full.txt 的 FACTS 段落后�
 if (!FULL.includes('# OpenCSG 模型价格实测')) fails.push('llms-full.txt 缺主标题');
 if (!/##[^#\n]*未[被]?证实/.test(FULL)) fails.push('llms-full.txt 没有「未被证实」小节');
 for (const need of ['## 披露', '手填']) if (!FULL.includes(need)) fails.push('llms-full.txt 缺少：' + need);
-const AUDIT_FULL = readFileSync(fileURLToPath(new URL('./audit.html', import.meta.url)), 'utf8');
+const AUDIT_FULL = readFileSync(fileURLToPath(new URL('./audit.html', import.meta.url)), 'utf8').replace(/\r\n/g, '\n');
 const srcSummary = (AUDIT_FULL.match(/<!--SUMMARY:START-->([\s\S]*?)<!--SUMMARY:END-->/) || [])[1];
 if (!srcSummary || !FULL.includes(srcSummary.trim())) fails.push('llms-full.txt 的横评结论句与 audit.html 的生成段不一致');
 for (const b of banned) if (FULL.includes(b)) fails.push('llms-full.txt 出现禁用表述：' + b);
@@ -392,6 +392,32 @@ const missing = (gwFull.results || []).filter(r =>
     r.level.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\|', 'm').test(FULL));
 if (missing.length) fails.push('llms-full.txt 横评缺行或判词不符：' + missing.map(r => r.name + '/' + r.level).join('、'));
 else ok.push('llms-full.txt 与三个来源逐字一致，横评 ' + (gwFull.results || []).length + ' 行按「行首名 + 判词」逐行比对通过');
+
+// 14. feed.xml 是"聚合器自己来拿"的那一份：正文必须等于来源，不许是第四份手抄。
+//     活动状态那条尤其要在场——机器人转发的从来是"注册送 99 元"，不是限定语。
+const FEED = readFileSync(fileURLToPath(new URL('./feed.xml', import.meta.url)), 'utf8');
+const summarySrc = (AUDIT_FULL.match(/<!--SUMMARY:START-->([\s\S]*?)<!--SUMMARY:END-->/) || [ '', '' ])[1];
+const factsSrc = (LLMS_EARLY.match(/<!--FACTS:START-->([\s\S]*?)<!--FACTS:END-->/) || [ '', '' ])[1];
+const entryOpen = (FEED.match(/<entry>/g) || []).length;
+const entryClose = (FEED.match(/<\/entry>/g) || []).length;
+if (entryOpen !== entryClose) fails.push(`feed.xml 标签不平衡：entry ${entryOpen}/${entryClose}`);
+if (entryOpen !== 3) fails.push(`feed.xml 有 ${entryOpen} 条 entry，期望 3（横评/清单/活动状态）`);
+if (!FEED.includes(summarySrc.trim())) fails.push('feed.xml 的横评结论句与 audit.html 的 SUMMARY 段不一致（跑 build-feed.mjs）');
+for (const line of factsSrc.split('\n').filter(l => l.startsWith('- '))) {
+  if (!FEED.includes(line)) fails.push('feed.xml 缺 llms.txt 事实行：' + line.slice(0, 24));
+}
+const campSrc = JSON.parse(readFileSync(fileURLToPath(new URL('./campaign-status.json', import.meta.url)), 'utf8'));
+// 断言要落在正文里：标题同样含"状态：closed"，用全文 includes() 会被标题蒙过去
+// （第一次篡改臂就是这么漏的——正文被翻成 active 而守卫全绿）。
+const campContent = (FEED.match(/<content type="text">状态：([a-z]+)/) || [])[1];
+if (campContent !== campSrc.state) fails.push('feed.xml 正文里的活动状态是 ' + campContent + '，campaign-status.json 说 ' + campSrc.state);
+if (campSrc.state === 'closed' && !/不要把/.test(FEED)) fails.push('活动已收官，feed 里却没有"别当现行权益转述"的限定语');
+const feedUps = [...FEED.matchAll(/<updated>([^<]+)<\/updated>/g)].map(m => m[1]).sort();
+if (feedUps.length !== 4) fails.push('feed.xml 应有 4 个 updated（feed 级 + 3 entry），实际 ' + feedUps.length);
+else if (!FEED.includes('<updated>' + feedUps[feedUps.length - 1] + '</updated>')) fails.push('feed.xml 的 feed 级 updated 不等于最新 entry');
+for (const b of banned) if (FEED.includes(b)) fails.push('feed.xml 出现禁用表述：' + b);
+if (FEED.includes('invitationCode=') && !/手填|不会自动/.test(FEED)) fails.push('feed.xml 放了带码链接却没写"要手填"');
+else ok.push('feed.xml 与来源一致：3 条 entry、结论句逐字、活动状态=' + campSrc.state + '、日期序 ' + feedUps[0].slice(0, 10) + '→' + feedUps[feedUps.length - 1].slice(0, 10));
 
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 // 用 exitCode 而不是 process.exit()：Windows 上强退会与未排空的 fetch handle
