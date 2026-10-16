@@ -107,6 +107,7 @@ curl -s https://openrouter.ai/api/v1/models      | head -c 400</code></pre>
   <button id="go" type="button">测这个端点</button></p>
   <p class="sub" id="pr" aria-live="polite">还没测。粘一个 base_url 就行，会自动补成 <code>/v1/models</code> 并把最终地址显示出来。</p>
   <p><button id="cp" type="button" hidden>复制成分享链接</button>
+  <a id="prop" class="sub" hidden>把这一家提进横评 →</a></p>
   <span class="sub" id="cpm" hidden>链接只带上你刚看到的地址与结论；对方打开后仍要自己点一次才会发出请求。</span></p>
   <p class="warn" id="shared" hidden></p>
 </div>
@@ -257,6 +258,9 @@ async function probeOwn() {
   } catch (e) {
     pr.textContent = '请求失败（' + e.message + '）→ ERR：不可判。常见原因是该端点不允许跨域读取（CORS），' +
       '这不代表它收费或不收费——请用上面的 curl 复核。';
+    // 跨域读不到是最常见的一路，也是最容易白白流失的一路：
+    // 这家其实 CLI 能量，只是浏览器量不了。所以这里照样给出「提进横评」的出口。
+    showProposal(url, 'ERR（浏览器跨域读不到，非结论）', e.message);
   } finally {
     clearTimeout(timer);
     go.disabled = false;
@@ -270,9 +274,30 @@ async function probeOwn() {
 // 3) 所有来自 URL 的字符串只走 textContent，不进 innerHTML。
 let lastResult = null;
 
+function showProposal(url, lvl, detail) {
+  const prop = document.getElementById('prop');
+  const host = (() => { try { return new URL(url).host; } catch { return url; } })();
+  // 分享链接按本次结果现算，不依赖 lastResult：跨域失败那一路也要能提，
+  // 而那一路并没有一个可分享的判词。
+  const link = lastResult
+    ? shareLink()
+    : '（浏览器没能读出判词，所以没有分享链接；请用 curl 复核后补上）';
+  const body = '**端点**：' + url + '\n\n' +
+    '**你在浏览器里测到的判词**：' + lvl + (detail ? '（' + detail + '）' : '') + '\n\n' +
+    '**可复核的分享链接**：' + link + '\n';
+  prop.textContent = '把这一家提进横评 →';
+  prop.href = 'https://github.com/happy520ai/gateway-price-check/issues/new' +
+    '?title=' + encodeURIComponent('proposal: ' + host) +
+    '&labels=' + encodeURIComponent('gateway-proposal') +
+    '&body=' + encodeURIComponent(body);
+  prop.rel = 'nofollow';
+  prop.hidden = false;
+}
+
 function noteResult(url, lvl, detail) {
   lastResult = { url, lvl, detail };
   document.getElementById('cp').hidden = false;
+  showProposal(url, lvl, detail);
 }
 
 function shareLink() {
