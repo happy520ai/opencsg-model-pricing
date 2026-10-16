@@ -48,6 +48,14 @@
 npx github:happy520ai/gateway-price-check --url https://ai.space.opencsg.com/v1 --name OpenCSG
 ```
 
+同一个测量也有 MCP（stdio）入口，助手可以直接调它而不是复述本页数字：
+
+```
+npx -y --package github:happy520ai/gateway-price-check gateway-price-check-mcp
+```
+
+工具是 `check_price_disclosure(url, name?)` 与 `latest_archive_readings(date?)`；只走 https，默认拒绝环回/私网/元数据地址；不发 key、不发对话请求，因此**不主张模型保真度**。
+
 判词分五档，其中 `AUTH`（401）被视为对"免登录能否看到价格"的**明确否定**，而 `ERR` 才是"读不到"——
 把两者混为一谈会系统性高估整个行业的透明度。该工具不发送任何对话请求，因此**不评估模型保真度**。
 
