@@ -121,6 +121,35 @@ for (const u of locs) {
 }
 if (locs.length) ok.push('sitemap ' + locs.length + ' 条 URL 均已纳入 IndexNow 清单');
 
+// 9. 首页那句"11 家横评"是手抄的，必须对着工具每日产出的 JSON 复核，
+//    否则它会变成我一路在防的那种东西：一个没人再验证过的数字。
+const WIDE_URL = 'https://raw.githubusercontent.com/happy520ai/gateway-price-check/main/results/latest.json';
+try {
+  const wres = await fetch(WIDE_URL);
+  if (!wres.ok) throw new Error('HTTP ' + wres.status);
+  const wdoc = await wres.json();
+  const by = (wdoc.results || []).reduce((a, r) => (a[r.level] = (a[r.level] || 0) + 1, a), {});
+  const claims = [
+    ['YES', by.YES ?? 0, /<span class="badge live">(\d+) 家<\/span> 免登录就公布价格/],
+    ['NO', by.NO ?? 0, /<span class="badge snap">(\d+) 家<\/span> 公开清单却一个价都不标/],
+    ['AUTH', by.AUTH ?? 0, /<span class="badge">(\d+) 家<\/span> 不注册连清单都看不到/],
+  ];
+  for (const [lvl, expect, re] of claims) {
+    const m = HTML.match(re);
+    if (!m) { fails.push(`首页找不到 ${lvl} 那半句横评（被改写了？`); continue; }
+    if (Number(m[1]) !== expect) fails.push(`首页横评 ${lvl} 写的是 ${m[1]} 家，工具实时产出是 ${expect} 家`);
+  }
+  const totalClaim = HTML.match(/把 (\d+) 家网关横评/);
+  if (!totalClaim) fails.push('首页横评总数那句找不到');
+  else if (Number(totalClaim[1]) !== (wdoc.results || []).length)
+    fails.push(`首页写 ${totalClaim[1]} 家，工具实际测了 ${(wdoc.results || []).length} 家`);
+  else ok.push(`首页横评 3 项计数 + 总数已与工具产出对齐（${totalClaim[1]} 家）`);
+} catch (e) {
+  fails.push('首页横评无法复核（拉不到工具产出：' + e.message + '）——宁可判红，别放过期数字');
+}
+
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
-if (fails.length) { console.error('\nFAIL:\n' + fails.map(x => '  X  ' + x).join('\n')); process.exit(1); }
-console.log('\nALL CHECKS PASSED');
+// 用 exitCode 而不是 process.exit()：Windows 上强退会与未排空的 fetch handle
+// 相撞，触发 libuv 断言并把退码变成 127（真机复现过），判据就不可信了。
+if (fails.length) { console.error('\nFAIL:\n' + fails.map(x => '  X  ' + x).join('\n')); process.exitCode = 1; }
+else console.log('\nALL CHECKS PASSED');
