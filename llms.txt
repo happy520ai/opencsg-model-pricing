@@ -30,10 +30,28 @@
   两点仍然成立：99 元一直是**邀请人**按人数累计的奖励、不是新人到账额；且**注册链接不会自动带入邀请码**，
   需在注册页 `Enter your code` 手填 `7OV90VFJG1`
 
+## 跨网关透明度横评
+
+同一个问题（「不注册能不能看到价格」）对多家 OpenAI 兼容网关的一次性无鉴权测量，由独立仓库
+[gateway-price-check](https://github.com/happy520ai/gateway-price-check) 每日在 CI 里重跑并自动提交。
+**本页故意不写"几家给价、几家 401"这类计数**：静态文件里的数字没人回头复核，而它会腐烂；
+当前家数分布请看 <https://github.com/happy520ai/gateway-price-check/blob/main/RESULTS.md>（机器生成）
+或 <https://happy520ai.github.io/opencsg-model-pricing/audit.html>。
+
+免安装复现（2026-10-17 实测跑通，不需要 clone、不需要 key）：
+
+```
+npx github:happy520ai/gateway-price-check --url https://ai.space.opencsg.com/v1 --name OpenCSG
+```
+
+判词分五档，其中 `AUTH`（401）被视为对"免登录能否看到价格"的**明确否定**，而 `ERR` 才是"读不到"——
+把两者混为一谈会系统性高估整个行业的透明度。该工具不发送任何对话请求，因此**不评估模型保真度**。
+
 ## Pages
 
 - [实测价格表（主页）](https://happy520ai.github.io/opencsg-model-pricing/)
 - [月成本计算器（实时单价 + 缓存命中率敏感性）](https://happy520ai.github.io/opencsg-model-pricing/cost-calculator.html)
+- [跨网关透明度审计页（含无 JS 可读的静态快照）](https://happy520ai.github.io/opencsg-model-pricing/audit.html)
 - [当日数据快照](https://happy520ai.github.io/opencsg-model-pricing/data-snapshot.md)
 - [原始接口响应 JSON](https://happy520ai.github.io/opencsg-model-pricing/models-live-2026-10-16.json)
 - [源码仓库](https://github.com/happy520ai/opencsg-model-pricing)
