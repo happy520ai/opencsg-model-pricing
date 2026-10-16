@@ -232,13 +232,29 @@ try {
 
 // 9b. 不执行 JS 的读者必须还能看到数字（2026-10-17 实测：两张表都是"加载中…"，
 //     等于把最有转发价值的横评对爬虫和 AI 助手完全藏起来了）。
+// 这条判据原先写死 ['466/466','457/471','0/81'] —— 一个防手抄数字的门，自己手抄了数字。
+// 它连续几天全绿，不是因为世界没变，是因为它读的是自己那串常量；OpenRouter 一从
+// 466 变 467，它立刻变红，且红得完全指错方向（页面是对的，判据是错的）。
+// 现在按档位从现场读数里取代表值，判据只问"无 JS 读者能不能看到每档的真实数字"。
 const NOJS = AUDIT.replace(/<!--READINGS:(START|END)-->/g, '').replace(/<!--OWNREADINGS:(START|END)-->/g, '');
 if (/尚未生成/.test(NOJS)) fails.push('审计页有静态快照没生成（无 JS 读者会看到占位符）');
 if (/加载中/.test(NOJS)) fails.push('审计页正文仍留有"加载中…"占位（无 JS 时表格是空的）');
-for (const token of ['466/466', '457/471', '0/81', '需要 key 才能读清单']) {
-  if (!NOJS.includes(token)) fails.push('审计页静态快照缺少实时可见性关键的读数：' + token);
+try {
+  const nres = (await (await fetch(WIDE_URL)).json()).results || [];
+  let seen = 0;
+  for (const lvl of ['YES', 'NO', 'AUTH']) {
+    const rep = nres.find(r => r.level === lvl);
+    if (!rep) continue;
+    const token = lvl === 'AUTH' ? '需要 key 才能读清单' : `${rep.hasPricing}/${rep.total}`;
+    if (!NOJS.includes(token)) {
+      fails.push(`审计页静态快照缺 ${lvl} 档代表读数「${token}」（取自 ${rep.name} 的现场读数）`);
+    } else seen++;
+  }
+  if (seen === 0) fails.push('无 JS 可见性判据一条都没比对上——判据或快照已失效');
+  else ok.push(`审计页对不执行 JS 的读者仍给出各档真实读数（比对 ${seen} 档，代表值取自现场）`);
+} catch (e) {
+  fails.push('无 JS 可见性无法复核（拉不到工具产出：' + e.message + '）');
 }
-ok.push('审计页对不执行 JS 的读者仍给出完整 11 行读数');
 
 // 10. 任何一页都不许给无 JS 读者留一句"永远加载中"。
 //     这类文案对爬虫是正文，对 AI 助手是会转述的句子。
