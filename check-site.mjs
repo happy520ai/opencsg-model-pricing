@@ -87,9 +87,13 @@ if (!HTML.includes('cost-calculator.html')) fails.push('主页未链到计算器
 const AUDIT_RAW = readFileSync(fileURLToPath(new URL('./audit.html', import.meta.url)), 'utf8');
 const AUDIT = AUDIT_RAW.replace(/<script[\s\S]*?<\/script>/g, '');
 for (const n of ['利益披露', 'OpenRouter', '不是透明度差异', 'ai.space.opencsg.com/v1/models',
-  '11 家全景', 'raw.githubusercontent.com/happy520ai/gateway-price-check',
-  '才是', '只有一台仪器']) {
+  '11 家全景', '才是', '只有一台仪器']) {
   if (!AUDIT.includes(n)) fails.push('审计页缺少：' + n);
+}
+// 跨仓库拉取地址在 <script> 里（AUDIT 已剥掉脚本），所以要拿原文测。
+// 第一版把它放进上面的正文断言里，永远不可能通过——判据指错了区域。
+if (!AUDIT_RAW.includes('raw.githubusercontent.com/happy520ai/gateway-price-check')) {
+  fails.push('审计页不再从 gateway-price-check 仓库现拉读数（跨仓库链路断了）');
 }
 if (/<td>\d/.test(AUDIT)) fails.push('审计页正文写死了计数：读数应由 JS 现场测，否则会和两个端点的实时值脱节');
 
