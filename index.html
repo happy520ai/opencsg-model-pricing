@@ -65,7 +65,8 @@ footer{color:var(--mut);font-size:13.5px;border-top:1px solid var(--line);margin
 <div class="discl"><div class="wrap"><strong>广告 / 利益披露：</strong>本页注册链接带个人邀请码 <code>7OV90VFJG1</code>，有人通过它注册，我会获得平台邀请奖励。本页不是 OpenCSG 官方页面，所有价格与条数均本人当日实测，出处逐条列出。</div></div>
 
 <header class="wrap">
-  <p style="padding-top:22px"><span class="badge live" id="badge">实时读数：加载中…</span> <span class="badge">快照日 2026-10-17</span></p>
+  <p style="padding-top:22px"><span class="badge live" id="badge">实时读数：需 JS 现场重放</span> <span class="badge">快照日 2026-10-17</span></p>
+  <noscript><p class="sub" style="color:#ffb454">下面那颗「实时读数」徽章和右上角的现场对比需要 JavaScript。没开 JS 时，本页表格里的数字仍是 2026-10-17 的实测快照，不是此刻的读数。</p></noscript>
   <h1>一条不用注册、不用 key 的命令，<br>能看到它的全部模型和价格</h1>
   <p class="sub">先说清一件我原本想当成卖点、被自己测掉的事：<strong>免登录能看到价格，并不是它独有的</strong>。OpenRouter 的无鉴权端点同样全量带价，目录还是它的二十倍。真正测得出差异的是<strong>计价单位</strong>——OpenCSG 每个价格对象带 <code>currency:"￥"</code>、按「元/百万 token」报；OpenRouter 给的是 <code>0.00000025</code> 这种「美元/token」小数，且不带币种字段。对以人民币结算的人，这是可读性差异，不是透明度差异。字段级对照在这里：<a href="./audit.html">免登录价格披露审计</a>。</p>
 

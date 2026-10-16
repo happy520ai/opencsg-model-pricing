@@ -163,6 +163,22 @@ for (const token of ['466/466', '457/471', '0/81', '需要 key 才能读清单']
 }
 ok.push('审计页对不执行 JS 的读者仍给出完整 11 行读数');
 
+// 10. 任何一页都不许给无 JS 读者留一句"永远加载中"。
+//     这类文案对爬虫是正文，对 AI 助手是会转述的句子。
+const stuckBefore = fails.length;
+for (const page of ['./index.html', './cost-calculator.html', './audit.html']) {
+  const raw = readFileSync(fileURLToPath(new URL(page, import.meta.url)), 'utf8');
+  const t = raw.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ');
+  const stuck = ['加载中', '正在拉取', '正在现场'].filter(k => t.includes(k));
+  if (stuck.length && !/<noscript/i.test(raw)) {
+    fails.push(`${page} 无 JS 时会永远显示「${stuck.join('/')}」，且没有 <noscript> 说明`);
+  } else if (stuck.length) {
+    fails.push(`${page} 仍留有卡住的提示词：「${stuck.join('/')}」（应改成如实写"这是静态快照"）`);
+  }
+}
+// 只有这一段真的没添新失败时才许印 ok（否则"ok"成了无条件装饰）。
+if (fails.length === stuckBefore) ok.push('三页均无"永远加载中"式残留');
+
 console.log(ok.map(x => '  ok  ' + x).join('\n'));
 // 用 exitCode 而不是 process.exit()：Windows 上强退会与未排空的 fetch handle
 // 相撞，触发 libuv 断言并把退码变成 127（真机复现过），判据就不可信了。

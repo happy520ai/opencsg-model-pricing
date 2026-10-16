@@ -60,7 +60,8 @@ code{font-family:"Cascadia Mono",Consolas,monospace;font-size:13px}
 
 <div class="card">
 <h2 style="margin-top:0">月成本（元），按你输入的用量排序</h2>
-<p class="sub" id="status">加载中…</p>
+<p class="sub" id="status">此表需 JavaScript 现拉实时单价</p>
+<noscript><p class="sub" style="color:#ffb454">计算器要跑 JS：它每次打开都从 <code>/v1/models</code> 现拉单价再算，不缓存任何数字。没开 JS 时这里<strong>故意留空</strong>——宁可空着，也不放一张可能已经过期的表。静态价目表在<a href="./">主页</a>，11 家横评的静态快照在<a href="./audit.html">审计页</a>。</p></noscript>
 <table><thead><tr>
 <th>模型</th><th>输入价</th><th>缓存价</th><th>输出价</th><th>月成本</th><th>相对最贵</th>
 </tr></thead><tbody id="tb"></tbody></table>

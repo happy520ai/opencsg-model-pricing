@@ -33,7 +33,8 @@ pre{background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:1
 <div class="discl">广告 / 利益披露：本站带个人邀请码，经它注册我会拿到平台奖励。但本页的结论对 OpenCSG <strong>不利</strong>，我还是把它发出来了——一个只说优点的价格页不值得信。</div>
 
 <h2>现场读数</h2>
-<p class="sub" id="status">正在拉取两个端点…</p>
+<p class="sub" id="status">下表为静态快照；开启 JS 的浏览器会现场重放并覆盖</p>
+<noscript><p class="sub" style="color:#ffb454">你看到的是页内静态快照（日期见各表下方），不是此刻的实时读数。两张表的数字都写死在 HTML 里，不执行 JS 的抓取器与 AI 助手同样能读到；开启 JS 后本页会现场重放并覆盖第一张表。</p></noscript>
 <table id="tbl"><thead><tr>
 <th>服务商</th><th>模型数</th><th>有输入价</th><th>有任一价字段</th><th>含缓存价</th><th>显式 currency 字段</th><th>含上游仓库标识</th>
 </tr></thead><tbody id="tb">
@@ -45,7 +46,7 @@ pre{background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:1
 
 <h2>11 家全景（每日自动产出）</h2>
 <p class="sub">下面这张表<strong>不是本页测的</strong>，是 <a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a> 每天跑一次、把结果提交进它自己仓库后由本页现拉的。分开摆是故意的：上面两行是本页自己的独立实现，用来和它互相校验；只有一台仪器时，你分不清读到的是世界还是仪器。</p>
-<p class="sub" id="wide-status">正在拉取跨仓库读数…</p>
+<p class="sub" id="wide-status">下表为工具仓库每日产出的静态快照</p>
 <table id="wide"><thead><tr>
 <th>服务商</th><th>模型数</th><th>公布价格</th><th>判词</th>
 </tr></thead><tbody id="wide-tb">
