@@ -36,12 +36,23 @@ jobs:
           '
           node embed-readings.mjs gateway-readings.json
 
+      # 分享卡必须跟着数据一起重跑。这两个脚本以前写死 C:/Windows/Fonts，
+      # 所以"每日重生成"其实是"从未重生成"：图会停在写它那天的数字，而图片里的数字
+      # grep 读不到、CI 看不见，正是最不容易被发现的那种腐烂。
+      - name: Regenerate share cards from today's readings
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk fonts-dejavu-core
+          python3 -m pip install --quiet pillow
+          python3 make-og-image.py
+          python3 make-audit-og.py
+
       - name: Commit snapshot if it moved
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain data-snapshot.md audit.html gateway-readings.json)" ]]; then
-            git add data-snapshot.md audit.html gateway-readings.json
+          if [[ -n "$(git status --porcelain data-snapshot.md audit.html gateway-readings.json og-image.png audit-og.png)" ]]; then
+            git add data-snapshot.md audit.html gateway-readings.json og-image.png audit-og.png
             git commit -m "data: refresh snapshot and no-JS readings"
             git push
           else

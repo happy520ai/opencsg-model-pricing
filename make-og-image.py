@@ -8,6 +8,7 @@ import json
 import sys
 import urllib.request
 
+import _fonts
 from PIL import Image, ImageDraw, ImageFont
 
 ENDPOINT = "https://ai.space.opencsg.com/v1/models"
@@ -72,8 +73,7 @@ def main():
     d = ImageDraw.Draw(img)
 
     def font(sz, bold=True):
-        name = "msyhbd.ttc" if bold else "msyh.ttc"
-        return ImageFont.truetype("C:/Windows/Fonts/" + name, sz)
+        return ImageFont.truetype(_fonts.require(bold), sz)
 
     d.rectangle([0, 0, W, 8], fill=ACC)
 
@@ -86,7 +86,7 @@ def main():
     d.rounded_rectangle([72, chip_y, 860, chip_y + chip_h], radius=12,
                         fill=(8, 10, 13), outline=LINE, width=2)
     d.text((94, chip_y + 18), "curl -s https://ai.space.opencsg.com/v1/models",
-           font=ImageFont.truetype("C:/Windows/Fonts/consola.ttf", 25), fill=FG)
+           font=ImageFont.truetype(_fonts.require_mono(), 25), fill=FG)
 
     # stat cards
     cards = [

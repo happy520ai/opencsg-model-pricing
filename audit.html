@@ -3,8 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>免登录价格披露审计 · OpenCSG vs OpenRouter</title>
-<meta name="description" content="两个 OpenAI 兼容端点的字段级对照：谁在免登录时公布价格、币种、缓存价与上游仓库标识。浏览器现场重放，不靠截图。">
+<title>免登录价格披露审计 · 11 家模型网关横评</title>
+<meta name="description" content="对多家 OpenAI 兼容端点各发一次无鉴权 GET /v1/models：谁在免登录时公布价格、币种、缓存价与上游仓库标识。浏览器现场重放，不靠截图。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://happy520ai.github.io/opencsg-model-pricing/audit.html">
+<meta property="og:site_name" content="OpenCSG 模型价格实测">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:title" content="注册之前，谁能看到价格？11 家模型网关横评">
+<!-- og:description 里刻意不写家数与比值：静态 HTML 里的数字没人会回头复核，而分享卡上的数字由 CI 每天从
+     gateway-readings.json 重画（make-audit-og.py，读数过期就拒绝出图）。方法可以写死，读数不行。 -->
+<meta property="og:description" content="每家一次不用登录、不用 key 的 GET /v1/models，看它在你想花钱之前愿不愿意把价格给你。判词分五档：把「我没读到」和「它没标价」分开。">
+<meta property="og:image" content="https://happy520ai.github.io/opencsg-model-pricing/audit-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="11 家模型网关的免登录价格披露横评：公布价格、清单公开零价格、401 三档家数">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="注册之前，谁能看到价格？11 家模型网关横评">
+<meta name="twitter:description" content="每家一次无鉴权 GET /v1/models。判词分五档，把「我没读到」和「它没标价」分开。">
+<meta name="twitter:image" content="https://happy520ai.github.io/opencsg-model-pricing/audit-og.png">
+<meta name="twitter:image:alt" content="11 家模型网关的免登录价格披露横评">
+<link rel="canonical" href="https://happy520ai.github.io/opencsg-model-pricing/audit.html">
 <style>
 :root{--bg:#0b0d10;--fg:#e8eaf0;--mut:#98a2b3;--card:#12161c;--line:#222932;--acc:#4ee1a0;--warn:#ffb454}
 *{box-sizing:border-box}

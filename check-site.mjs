@@ -153,6 +153,60 @@ try {
   fails.push('首页横评无法复核（拉不到工具产出：' + e.message + '）——宁可判红，别放过期数字');
 }
 
+// 9a. 审计页是横评文案唯一外链的那一页，此前它连一个 og: 标签都没有——分享出去
+//     没有标题、没有图，等于把最有转发价值的一页做成纯文本链接。
+const AUDIT_URL = 'https://happy520ai.github.io/opencsg-model-pricing/audit.html';
+const metaOf = name => {
+  const re = new RegExp('<meta (?:property|name)="' + name + '" content="([^"]*)"');
+  const m = AUDIT_RAW.match(re);
+  return m ? m[1] : null;
+};
+for (const k of ['og:type', 'og:url', 'og:title', 'og:description', 'og:image', 'og:image:alt',
+  'twitter:card', 'twitter:title', 'twitter:image']) {
+  if (metaOf(k) === null) fails.push('审计页缺 <meta ' + k + '>（分享会没有预览）');
+}
+if (metaOf('twitter:card') !== 'summary_large_image') fails.push('twitter:card 不是 summary_large_image，大图预览不会出');
+if (metaOf('og:url') !== AUDIT_URL) fails.push('og:url 指向别处：' + metaOf('og:url'));
+const canon = (AUDIT_RAW.match(/<link rel="canonical" href="([^"]*)"/) || [])[1];
+if (canon !== AUDIT_URL) fails.push('canonical 与 og:url 不一致：' + canon);
+for (const k of ['og:image', 'twitter:image']) {
+  const v = metaOf(k);
+  if (v && !/\/audit-og\.png$/.test(v)) fails.push(k + ' 没指向本页自己的分享卡（复用了别页的图＝预览与内容不符）：' + v);
+}
+// 数字只许活在每天重画的分享卡里，不许活在静态 meta 里——meta 没人回头复核。
+const ogDesc = metaOf('og:description') || '';
+if (/\d+\s*\/\s*\d+/.test(ogDesc)) fails.push('og:description 里出现了比值，它会腐烂：' + ogDesc);
+if (/\d+ 家/.test(ogDesc)) fails.push('og:description 里出现了家数，它会腐烂：' + ogDesc);
+try {
+  const png = readFileSync(fileURLToPath(new URL('./audit-og.png', import.meta.url)));
+  const sig = png.slice(0, 8).toString('hex') === '89504e470d0a1a0a';
+  if (!sig) fails.push('audit-og.png 不是合法 PNG');
+  else if (png.readUInt32BE(16) !== 1200 || png.readUInt32BE(20) !== 630)
+    fails.push(`audit-og.png 尺寸 ${png.readUInt32BE(16)}x${png.readUInt32BE(20)}，不是 1200x630`);
+  else ok.push('audit-og.png 存在且为 1200x630 PNG');
+} catch {
+  fails.push('缺 audit-og.png —— 审计页的 og:image 会 404');
+}
+try {
+  const wres = await fetch(WIDE_URL);
+  if (!wres.ok) throw new Error('HTTP ' + wres.status);
+  const wdoc = await wres.json();
+  const n = (wdoc.results || []).length;
+  for (const k of ['og:title', 'twitter:title']) {
+    const v = metaOf(k);
+    const m = v && v.match(/(\d+) 家/);
+    if (!m) fails.push(k + ' 里没有「N 家」，无法核对家数：' + v);
+    else if (Number(m[1]) !== n) fails.push(`${k} 写 ${m[1]} 家，工具实际测了 ${n} 家`);
+  }
+  const t = (AUDIT_RAW.match(/<title>([^<]*)<\/title>/) || [])[1] || '';
+  const tm = t.match(/(\d+) 家/);
+  if (!tm) fails.push('<title> 里没有家数');
+  else if (Number(tm[1]) !== n) fails.push(`<title> 写 ${tm[1]} 家，实时 ${n} 家`);
+  else ok.push(`审计页标题/og 家数与工具产出对齐（${n} 家）`);
+} catch (e) {
+  fails.push('审计页家数无法复核（拉不到工具产出：' + e.message + '）');
+}
+
 // 9b. 不执行 JS 的读者必须还能看到数字（2026-10-17 实测：两张表都是"加载中…"，
 //     等于把最有转发价值的横评对爬虫和 AI 助手完全藏起来了）。
 const NOJS = AUDIT.replace(/<!--READINGS:(START|END)-->/g, '').replace(/<!--OWNREADINGS:(START|END)-->/g, '');
