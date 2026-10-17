@@ -1,6 +1,6 @@
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-10-16　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+核查日期：2026-10-17　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
 重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **23** 条，其中 **18** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
@@ -11,18 +11,18 @@
 | text-embedding-3-small | 0.16 | 0.16 | - |
 | qwen3-rerank | 0.55 | 0.55 | - |
 | OpenCSG/Agentic-27B | 0.75 | 3 | OpenCSG/Agentic-27B |
-| glm-5.3-flash | 0.88 | 3.08 | - |
-| qwen3.8-flash | 0.88 | 2.97 | - |
-| qwen3.6-plus | 1.5 | 9 | - |
-| qwen3.7-plus | 2.2 | 13.2 | - |
-| MiniMax-M2.5 | 2.31 | 9.24 | MiniMaxAI/MiniMax-M2.5 |
-| deepseek-v4-flash | 3.3 | 9.9 | deepseek-ai/DeepSeek-V4-Flash |
-| deepseek-v4.1-flash | 4 | 12 | deepseek-ai/DeepSeek-V4.1-Flash |
-| glm-5.2 | 4.4 | 15.400000000000002 | zai-org/GLM-5.2 |
-| glm-5.1 | 4.62 | 18.84 | zai-org/GLM-5.1 |
-| minimax-m3 | 4.62 | 18.48 | - |
-| deepseek-v4-pro | 9.9 | 29.7 | deepseek-ai/DeepSeek-V4-Pro-0813 |
-| qwen3.8-max | 13.2 | 39.6 | - |
+| glm-5.3-flash | 1.76 | 6.16 | - |
+| qwen3.8-flash | 1.76 | 5.94 | - |
+| qwen3.6-plus | 3 | 18 | - |
+| deepseek-v4.1-flash | 4.4 | 17.6 | deepseek-ai/DeepSeek-V4.1-Flash |
+| qwen3.7-plus | 4.4 | 26.4 | - |
+| MiniMax-M2.5 | 4.62 | 18.15 | MiniMaxAI/MiniMax-M2.5 |
+| deepseek-v4-flash | 6.6 | 19.8 | deepseek-ai/DeepSeek-V4-Flash |
+| glm-5.1 | 8 | 28 | zai-org/GLM-5.1 |
+| glm-5.2 | 8 | 28 | zai-org/GLM-5.2 |
+| minimax-m3 | 9.24 | 36.96 | - |
+| deepseek-v4-pro | 19.8 | 59.4 | deepseek-ai/DeepSeek-V4-Pro-0813 |
+| qwen3.8-max | 26.4 | 79.2 | - |
 
 ## 主文案六个具名模型的核对结果
 

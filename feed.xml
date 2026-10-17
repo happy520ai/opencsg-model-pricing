@@ -14,9 +14,9 @@
     <updated>2026-10-17T00:00:00Z</updated>
     <content type="text">截至 2026-10-17：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key
 
-OpenCSG：YES（清单 23 条，带价 21 条）
-OpenRouter：YES（清单 467 条，带价 467 条）
-Vercel AI Gateway：YES（清单 473 条，带价 459 条）
+OpenCSG：YES（清单 13 条，带价 11 条）
+OpenRouter：YES（清单 469 条，带价 469 条）
+Vercel AI Gateway：YES（清单 474 条，带价 460 条）
 NVIDIA NIM：NO（清单 81 条，带价 0 条）
 OpenAI：AUTH
 DeepSeek：AUTH
@@ -29,14 +29,14 @@ MiniMax：AUTH
 复现：npx github:happy520ai/gateway-price-check --url &lt;base_url&gt; --name &lt;名字&gt;（一次无鉴权 GET；五档判词里"我读不到 ERR"与"它没有 NO"是两件事，401 AUTH 算明确的否）</content>
   </entry>
   <entry>
-    <title>OpenCSG 清单与价格实测 2026-10-16</title>
-    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#facts-2026-10-16</id>
+    <title>OpenCSG 清单与价格实测 2026-10-17</title>
+    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#facts-2026-10-17</id>
     <link href="https://happy520ai.github.io/opencsg-model-pricing/" />
-    <updated>2026-10-16T00:00:00Z</updated>
-    <content type="text">OpenCSG /v1/models 免登录重放（2026-10-16）：
+    <updated>2026-10-17T00:00:00Z</updated>
+    <content type="text">OpenCSG /v1/models 免登录重放（2026-10-17）：
 - 模型清单：免登录返回 23 条，其中 18 条公布输入单价
-- 输入价区间：0.1 – 13.2 元/百万 token（最低 `convaiinnovations/laya`，最高 `qwen3.8-max`）
-- 接口 `tasks` 标了 `text-generation` 的 12 条中，最低输入价 0.88 元/百万 token（`glm-5.3-flash`、`qwen3.8-flash` 并列）
+- 输入价区间：0.1 – 26.4 元/百万 token（最低 `convaiinnovations/laya`，最高 `qwen3.8-max`）
+- 接口 `tasks` 标了 `text-generation` 的 12 条中，最低输入价 1.76 元/百万 token（`glm-5.3-flash`、`qwen3.8-flash` 并列）
 
 重放：curl -s https://ai.space.opencsg.com/v1/models　清单会实时上下架，引用前请自行复核。</content>
   </entry>
