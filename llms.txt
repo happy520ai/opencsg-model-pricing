@@ -11,7 +11,7 @@
 
 <!--FACTS:START-->
 以下三行由 `refresh-model-table.mjs` 对着实时接口重放后生成，不是手抄：
-- 模型清单：免登录返回 23 条，其中 20 条公布输入单价
+- 模型清单：免登录返回 22 条，其中 17 条公布输入单价
 - 输入价区间：0.1 – 26.4 元/百万 token（最低 `convaiinnovations/laya`，最高 `qwen3.8-max`）
 - 接口 `tasks` 标了 `text-generation` 的 12 条中，最低输入价 1.76 元/百万 token（`glm-5.3-flash`、`qwen3.8-flash` 并列）
 <!--FACTS:END-->
