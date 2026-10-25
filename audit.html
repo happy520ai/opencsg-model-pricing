@@ -71,7 +71,7 @@ pre{background:#080a0d;border:1px solid var(--line);border-radius:10px;padding:1
 </tr></thead><tbody id="wide-tb">
       <!--READINGS:START-->
       <tr><td>OpenCSG</td><td>22</td><td>20/22</td><td style="text-align:left">20/22 条公布价格（91%） · 带显式币种字段 · 含缓存价 · 含上游仓库标识</td></tr>
-      <tr><td>OpenRouter</td><td>469</td><td>469/469</td><td style="text-align:left">469/469 条公布价格（100%） · 含缓存价 · 含上游仓库标识</td></tr>
+      <tr><td>OpenRouter</td><td>467</td><td>467/467</td><td style="text-align:left">467/467 条公布价格（100%） · 含缓存价 · 含上游仓库标识</td></tr>
       <tr><td>Vercel AI Gateway</td><td>480</td><td>466/480</td><td style="text-align:left">466/480 条公布价格（97%） · 含缓存价 · 注：61 条的价格键不在词表内（video_duration_pricing, image, image_dimension_quality_pricing…）——它们计入"公布价格"列，但我没解析出数值</td></tr>
       <tr><td>NVIDIA NIM</td><td>85</td><td>0/85</td><td style="text-align:left">免登录清单里没有任何价格字段</td></tr>
       <tr><td>OpenAI</td><td>—</td><td>—</td><td style="text-align:left">需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否</td></tr>
@@ -116,7 +116,7 @@ curl -s https://openrouter.ai/api/v1/models      | head -c 400</code></pre>
 
 <p class="sub">数据快照同时存在 <a href="./audit-latest.md">audit-latest.md</a>；生成脚本 <a href="https://github.com/happy520ai/opencsg-model-pricing/blob/main/transparency-audit.mjs">transparency-audit.mjs</a>。</p>
 <p class="sub">想量你自己的网关：<a href="https://github.com/happy520ai/gateway-price-check" rel="nofollow">gateway-price-check</a>（零依赖 CLI，一次无鉴权 GET，判词分 <code>YES</code>/<code>NO</code>/<code>AUTH</code>/<code>ERR</code>/<code>UNKNOWN</code> 五档——把"我没读到"和"它没价格"分开，401 则算作明确的"否"）。
-<br><strong>也可以直接当 CI 里的一道门</strong>：零依赖 composite Action，<code>uses: happy520ai/gateway-price-check@v0.3.0</code>，读 outputs 里的 <code>verdict</code>／<code>total</code>／<code>priced</code>。默认只有 <code>NO</code>（清单公开却零价格）让作业转红；<code>ERR</code>／<code>UNKNOWN</code> 说的是探针自己，不默认当服务商不透明。<!--SIZETXT:START-->11 家每日自动读数<!--SIZETXT:END-->见它的 <a href="https://github.com/happy520ai/gateway-price-check/tree/main/results/history">按日归档的原始读数</a>（<!--SUMMARY:START-->截至 2026-10-24：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key<!--SUMMARY:END-->）。<br><strong>两张表的来源不同，别说混了：</strong>第一张「现场读数」<strong>不是</strong>那个工具跑的，是本页自己的浏览器代码 + 仓库里的 <code>transparency-audit.mjs</code> 各算一遍；第二张「11 家全景」<strong>才是</strong>那个工具每日产出的拷贝，本页只现拉不重算。两套独立实现同指一件事是有意为之——只有一台仪器时，你分不清读到的是世界还是仪器。</p>
+<br><strong>也可以直接当 CI 里的一道门</strong>：零依赖 composite Action，<code>uses: happy520ai/gateway-price-check@v0.3.0</code>，读 outputs 里的 <code>verdict</code>／<code>total</code>／<code>priced</code>。默认只有 <code>NO</code>（清单公开却零价格）让作业转红；<code>ERR</code>／<code>UNKNOWN</code> 说的是探针自己，不默认当服务商不透明。<!--SIZETXT:START-->11 家每日自动读数<!--SIZETXT:END-->见它的 <a href="https://github.com/happy520ai/gateway-price-check/tree/main/results/history">按日归档的原始读数</a>（<!--SUMMARY:START-->截至 2026-10-25：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key<!--SUMMARY:END-->）。<br><strong>两张表的来源不同，别说混了：</strong>第一张「现场读数」<strong>不是</strong>那个工具跑的，是本页自己的浏览器代码 + 仓库里的 <code>transparency-audit.mjs</code> 各算一遍；第二张「11 家全景」<strong>才是</strong>那个工具每日产出的拷贝，本页只现拉不重算。两套独立实现同指一件事是有意为之——只有一台仪器时，你分不清读到的是世界还是仪器。</p>
 <p class="sub">要注册的话 <a href="https://opencsg.com/signup?invitationCode=7OV90VFJG1" rel="nofollow sponsored">这个链接带我的邀请码</a>，但<strong>链接不会自动带入——注册页的 <code>Enter your code</code> 框要手填 <code>7OV90VFJG1</code></strong>（实测该框为空）；模型保真度我未验证（没有 key，没发过 chat 请求）。</p>
 </div>
 
