@@ -2,7 +2,7 @@
 
 本文件由 `build-llms-full.mjs` 从三个**已受守卫的来源**拼接生成，请勿手改：
 `llms.txt`（要点与披露）、`data-snapshot.md`（当日实测快照）、`gateway-readings.json`（跨网关横评）。
-横评读数日期：2026-10-25（本文件不含运行时刻——加了时间戳会让每天的 CI 都把一个内容没变的文件重新提交一次）
+横评读数日期：2026-10-28（本文件不含运行时刻——加了时间戳会让每天的 CI 都把一个内容没变的文件重新提交一次）
 
 任何引用前请先自行重放：`curl -s https://ai.space.opencsg.com/v1/models`（免登录、无需 key）。
 清单会实时上下架，本文件里的每个数字都只对其生成时刻负责。
@@ -24,7 +24,7 @@
 以下三行由 `refresh-model-table.mjs` 对着实时接口重放后生成，不是手抄：
 - 模型清单：免登录返回 22 条，其中 17 条公布输入单价
 - 输入价区间：0.1 – 26.4 元/百万 token（最低 `convaiinnovations/laya`，最高 `qwen3.8-max`）
-- 接口 `tasks` 标了 `text-generation` 的 12 条中，最低输入价 1.76 元/百万 token（`glm-5.3-flash`、`qwen3.8-flash` 并列）
+- 接口 `tasks` 标了 `text-generation` 的 10 条中，最低输入价 1.76 元/百万 token（`qwen3.8-flash` 并列）
 <!--FACTS:END-->
 - 常被引用的档位：`deepseek-v4.1-flash` 4 进 / 12 出；`deepseek-v4-pro` 9.9 进 / 29.7 出；
   `glm-5.3-flash` 与 `qwen3.8-flash` 均 0.88 进；`qwen3.8-max` 13.2 进 / 39.6 出
@@ -93,7 +93,7 @@ npx -y --package github:happy520ai/gateway-price-check gateway-price-check-mcp
 
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-10-25　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+核查日期：2026-10-28　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
 重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **22** 条，其中 **17** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
@@ -101,36 +101,36 @@ npx -y --package github:happy520ai/gateway-price-check gateway-price-check-mcp
 | convaiinnovations/laya | 0.1 | - | convaiinnovations/laya |
 | Qwen/Qwen3Guard-Gen-0.6B | 0.12 | 0.24 | Qwen/Qwen3Guard-Gen-0.6B |
 | Qwen/Qwen3Guard-Stream-0.6B | 0.12 | 0.24 | Qwen/Qwen3Guard-Stream-0.6B |
+| text-embedding-3-small | 0.16 | 0.16 | - |
 | OpenCSG/Agentic-27B | 0.35 | 1 | OpenCSG/Agentic-27B |
 | qwen3-rerank | 0.55 | 0.55 | - |
-| glm-5.3-flash | 1.76 | 6.16 | - |
 | qwen3.8-flash | 1.76 | 5.94 | - |
 | qwen3.6-plus | 3 | 18 | - |
 | deepseek-v4.1-flash-1017 | 4 | 17.6 | deepseek-ai/DeepSeek-V4.1-Flash-1017 |
 | qwen3.7-plus | 4.4 | 26.4 | - |
 | MiniMax-M2.5 | 4.62 | 18.15 | MiniMaxAI/MiniMax-M2.5 |
+| MOSS-VL-1.0 | 6 | 6 | xxxx/MOSS |
 | deepseek-v4-flash | 6.6 | 19.8 | deepseek-ai/DeepSeek-V4-Flash |
 | glm-5.1 | 8 | 28 | zai-org/GLM-5.1 |
 | glm-5.2 | 8 | 28 | zai-org/GLM-5.2 |
-| minimax-m3 | 9.24 | 36.96 | - |
 | deepseek-v4-pro | 19.8 | 59.4 | deepseek-ai/DeepSeek-V4-Pro-0813 |
 | qwen3.8-max | 26.4 | 79.2 | - |
 
 ## 主文案六个具名模型的核对结果
 
-未命中（不得写进物料）：`deepseek-v4.1-flash`、`kimi-k3`
+未命中（不得写进物料）：`deepseek-v4.1-flash`、`glm-5.3-flash`、`kimi-k3`
 
 ---
 
-## 附：跨网关透明度横评（11 家每日自动读数，读数日期 2026-10-25）
+## 附：跨网关透明度横评（11 家每日自动读数，读数日期 2026-10-28）
 
-截至 2026-10-25：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key
+截至 2026-10-28：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key
 
 | 网关 | 判词 | 清单条数 | 带价条数 | 说明（工具原文，非我改写） |
 |---|---|---|---|---|
-| OpenCSG | YES | 22 | 20/22 | 20/22 条公布价格（91%） · 带显式币种字段 · 含缓存价 · 含上游仓库标识 |
-| OpenRouter | YES | 467 | 467/467 | 467/467 条公布价格（100%） · 含缓存价 · 含上游仓库标识 |
-| Vercel AI Gateway | YES | 480 | 466/480 | 466/480 条公布价格（97%） · 含缓存价 · 注：61 条的价格键不在词表内（video_duration_pricing, image, image_dimension_quality_pricing…）——它们计入"公布价格"列，但我没解析出数值 |
+| OpenCSG | YES | 21 | 19/21 | 19/21 条公布价格（90%） · 带显式币种字段 · 含缓存价 · 含上游仓库标识 |
+| OpenRouter | YES | 464 | 464/464 | 464/464 条公布价格（100%） · 含缓存价 · 含上游仓库标识 |
+| Vercel AI Gateway | YES | 498 | 483/498 | 483/498 条公布价格（97%） · 含缓存价 · 注：64 条的价格键不在词表内（video_duration_pricing, image, image_dimension_quality_pricing…）——它们计入"公布价格"列，但我没解析出数值 |
 | NVIDIA NIM | NO | 85 | 0/85 | 免登录清单里没有任何价格字段 |
 | OpenAI | AUTH | — | — | 需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否 |
 | DeepSeek | AUTH | — | — | 需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否 |
