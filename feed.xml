@@ -4,20 +4,20 @@
   <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml</id>
   <link rel="alternate" href="https://happy520ai.github.io/opencsg-model-pricing/" />
   <link rel="self" href="https://happy520ai.github.io/opencsg-model-pricing/feed.xml" />
-  <updated>2026-10-28T00:00:00Z</updated>
+  <updated>2026-10-29T00:00:00Z</updated>
   <author><name>happy520ai</name></author>
   <rights>本页含个人邀请码利益披露；所有数字来自免登录重放，引用前请自行复核</rights>
   <entry>
-    <title>跨网关价格透明度横评 2026-10-28</title>
-    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#audit-2026-10-28</id>
+    <title>跨网关价格透明度横评 2026-10-29</title>
+    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#audit-2026-10-29</id>
     <link href="https://happy520ai.github.io/opencsg-model-pricing/audit.html" />
-    <updated>2026-10-28T00:00:00Z</updated>
-    <content type="text">截至 2026-10-28：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key
+    <updated>2026-10-29T00:00:00Z</updated>
+    <content type="text">截至 2026-10-29：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key
 
-OpenCSG：YES（清单 21 条，带价 19 条）
-OpenRouter：YES（清单 464 条，带价 464 条）
-Vercel AI Gateway：YES（清单 498 条，带价 483 条）
-NVIDIA NIM：NO（清单 85 条，带价 0 条）
+OpenCSG：YES（清单 23 条，带价 21 条）
+OpenRouter：YES（清单 457 条，带价 457 条）
+Vercel AI Gateway：YES（清单 499 条，带价 484 条）
+NVIDIA NIM：NO（清单 84 条，带价 0 条）
 OpenAI：AUTH
 DeepSeek：AUTH
 SiliconFlow 硅基流动：AUTH
@@ -29,11 +29,11 @@ MiniMax：AUTH
 复现：npx github:happy520ai/gateway-price-check --url &lt;base_url&gt; --name &lt;名字&gt;（一次无鉴权 GET；五档判词里"我读不到 ERR"与"它没有 NO"是两件事，401 AUTH 算明确的否）</content>
   </entry>
   <entry>
-    <title>OpenCSG 清单与价格实测 2026-10-28</title>
-    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#facts-2026-10-28</id>
+    <title>OpenCSG 清单与价格实测 2026-10-29</title>
+    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#facts-2026-10-29</id>
     <link href="https://happy520ai.github.io/opencsg-model-pricing/" />
-    <updated>2026-10-28T00:00:00Z</updated>
-    <content type="text">OpenCSG /v1/models 免登录重放（2026-10-28）：
+    <updated>2026-10-29T00:00:00Z</updated>
+    <content type="text">OpenCSG /v1/models 免登录重放（2026-10-29）：
 - 模型清单：免登录返回 22 条，其中 17 条公布输入单价
 - 输入价区间：0.1 – 26.4 元/百万 token（最低 `convaiinnovations/laya`，最高 `qwen3.8-max`）
 - 接口 `tasks` 标了 `text-generation` 的 10 条中，最低输入价 1.76 元/百万 token（`qwen3.8-flash` 并列）
@@ -42,10 +42,10 @@ MiniMax：AUTH
   </entry>
   <entry>
     <title>邀请活动状态：unknown</title>
-    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#campaign-2026-10-25</id>
+    <id>https://happy520ai.github.io/opencsg-model-pricing/feed.xml#campaign-2026-10-28</id>
     <link href="https://happy520ai.github.io/opencsg-model-pricing/" />
-    <updated>2026-10-25T00:00:00Z</updated>
-    <content type="text">状态：unknown。依据：无收官 banner 也无在期邀请活动，不能推断额度是否可用（本条复核于 2026-10-25，来源是厂商自己的 broadcasts/active 与 internal_api/campaigns）
+    <updated>2026-10-28T00:00:00Z</updated>
+    <content type="text">状态：unknown。依据：无收官 banner 也无在期邀请活动，不能推断额度是否可用（本条复核于 2026-10-28，来源是厂商自己的 broadcasts/active 与 internal_api/campaigns）
 因此不要把"注册送 50 元 / 邀请得 99 元"当现行权益转述。另：注册链接不会自动带入邀请码。</content>
   </entry>
 </feed>

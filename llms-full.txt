@@ -2,7 +2,7 @@
 
 本文件由 `build-llms-full.mjs` 从三个**已受守卫的来源**拼接生成，请勿手改：
 `llms.txt`（要点与披露）、`data-snapshot.md`（当日实测快照）、`gateway-readings.json`（跨网关横评）。
-横评读数日期：2026-10-28（本文件不含运行时刻——加了时间戳会让每天的 CI 都把一个内容没变的文件重新提交一次）
+横评读数日期：2026-10-29（本文件不含运行时刻——加了时间戳会让每天的 CI 都把一个内容没变的文件重新提交一次）
 
 任何引用前请先自行重放：`curl -s https://ai.space.opencsg.com/v1/models`（免登录、无需 key）。
 清单会实时上下架，本文件里的每个数字都只对其生成时刻负责。
@@ -93,7 +93,7 @@ npx -y --package github:happy520ai/gateway-price-check gateway-price-check-mcp
 
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-10-28　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+核查日期：2026-10-29　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
 重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **22** 条，其中 **17** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
@@ -122,16 +122,16 @@ npx -y --package github:happy520ai/gateway-price-check gateway-price-check-mcp
 
 ---
 
-## 附：跨网关透明度横评（11 家每日自动读数，读数日期 2026-10-28）
+## 附：跨网关透明度横评（11 家每日自动读数，读数日期 2026-10-29）
 
-截至 2026-10-28：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key
+截至 2026-10-29：只有 3 家免登录公布价格，1 家公开清单却完全不标价，7 家连清单都要 key
 
 | 网关 | 判词 | 清单条数 | 带价条数 | 说明（工具原文，非我改写） |
 |---|---|---|---|---|
-| OpenCSG | YES | 21 | 19/21 | 19/21 条公布价格（90%） · 带显式币种字段 · 含缓存价 · 含上游仓库标识 |
-| OpenRouter | YES | 464 | 464/464 | 464/464 条公布价格（100%） · 含缓存价 · 含上游仓库标识 |
-| Vercel AI Gateway | YES | 498 | 483/498 | 483/498 条公布价格（97%） · 含缓存价 · 注：64 条的价格键不在词表内（video_duration_pricing, image, image_dimension_quality_pricing…）——它们计入"公布价格"列，但我没解析出数值 |
-| NVIDIA NIM | NO | 85 | 0/85 | 免登录清单里没有任何价格字段 |
+| OpenCSG | YES | 23 | 21/23 | 21/23 条公布价格（91%） · 带显式币种字段 · 含缓存价 · 含上游仓库标识 |
+| OpenRouter | YES | 457 | 457/457 | 457/457 条公布价格（100%） · 含缓存价 · 含上游仓库标识 |
+| Vercel AI Gateway | YES | 499 | 484/499 | 484/499 条公布价格（97%） · 含缓存价 · 注：64 条的价格键不在词表内（video_duration_pricing, image, image_dimension_quality_pricing…）——它们计入"公布价格"列，但我没解析出数值 |
+| NVIDIA NIM | NO | 84 | 0/84 | 免登录清单里没有任何价格字段 |
 | OpenAI | AUTH | — | — | 需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否 |
 | DeepSeek | AUTH | — | — | 需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否 |
 | SiliconFlow 硅基流动 | AUTH | — | — | 需要 key 才能读清单（HTTP 401）——对"免登录可见价格"这个问题，这就是否 |
