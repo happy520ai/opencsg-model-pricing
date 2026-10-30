@@ -1,16 +1,16 @@
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-10-29　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+核查日期：2026-10-30　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
 重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **22** 条，其中 **17** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
 |---|---|---|---|
-| convaiinnovations/laya | 0.1 | - | convaiinnovations/laya |
 | Qwen/Qwen3Guard-Gen-0.6B | 0.12 | 0.24 | Qwen/Qwen3Guard-Gen-0.6B |
 | Qwen/Qwen3Guard-Stream-0.6B | 0.12 | 0.24 | Qwen/Qwen3Guard-Stream-0.6B |
 | text-embedding-3-small | 0.16 | 0.16 | - |
 | OpenCSG/Agentic-27B | 0.35 | 1 | OpenCSG/Agentic-27B |
 | qwen3-rerank | 0.55 | 0.55 | - |
+| convaiinnovations/laya | 1 | - | convaiinnovations/laya |
 | qwen3.8-flash | 1.76 | 5.94 | - |
 | qwen3.6-plus | 3 | 18 | - |
 | deepseek-v4.1-flash-1017 | 4 | 17.6 | deepseek-ai/DeepSeek-V4.1-Flash-1017 |
