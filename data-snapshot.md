@@ -1,7 +1,7 @@
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-10-30　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
-重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **22** 条，其中 **17** 条带输入价。
+核查日期：2026-10-31　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **21** 条，其中 **16** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
 |---|---|---|---|
@@ -16,7 +16,6 @@
 | deepseek-v4.1-flash-1017 | 4 | 17.6 | deepseek-ai/DeepSeek-V4.1-Flash-1017 |
 | qwen3.7-plus | 4.4 | 26.4 | - |
 | MiniMax-M2.5 | 4.62 | 18.15 | MiniMaxAI/MiniMax-M2.5 |
-| MOSS-VL-1.0 | 6 | 6 | xxxx/MOSS |
 | deepseek-v4-flash | 6.6 | 19.8 | deepseek-ai/DeepSeek-V4-Flash |
 | glm-5.1 | 8 | 28 | zai-org/GLM-5.1 |
 | glm-5.2 | 8 | 28 | zai-org/GLM-5.2 |
