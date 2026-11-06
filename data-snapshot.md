@@ -1,7 +1,7 @@
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-11-05　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
-重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **21** 条，其中 **16** 条带输入价。
+核查日期：2026-11-06　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **22** 条，其中 **17** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
 |---|---|---|---|
@@ -21,7 +21,8 @@
 | glm-5.2 | 8 | 28 | zai-org/GLM-5.2 |
 | deepseek-v4-pro | 19.8 | 59.4 | deepseek-ai/DeepSeek-V4-Pro-0813 |
 | qwen3.8-max | 26.4 | 79.2 | - |
+| kimi-k3 | 28 | 146 | - |
 
 ## 主文案六个具名模型的核对结果
 
-未命中（不得写进物料）：`deepseek-v4.1-flash`、`glm-5.3-flash`、`kimi-k3`
+未命中（不得写进物料）：`deepseek-v4.1-flash`、`glm-5.3-flash`
