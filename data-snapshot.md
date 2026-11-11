@@ -1,7 +1,7 @@
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-11-10　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
-重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **22** 条，其中 **16** 条带输入价。
+核查日期：2026-11-11　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **21** 条，其中 **16** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
 |---|---|---|---|
