@@ -67,13 +67,19 @@ const entries =
   entry('campaign-' + campaign.checked_at.slice(0, 10), '',
     '邀请活动状态：' + campaign.state, campaign.checked_at.slice(0, 10), campaignBody);
 
+// feed 级 <updated> 必须是三条 entry 里最新的那个日期，而不是横评日期。
+// 11-17 那次红就是这个：上游横评停在 11-16（它自己那天挂了），清单事实已是 11-17，
+// 于是最新 entry 比 feed 级新一天，自检拒绝出 feed。取 max 是唯一自洽的定义。
+const entryDates = [gw.as_of, snapDate, campaign.checked_at.slice(0, 10)].filter(Boolean).sort();
+const feedUpdated = entryDates[entryDates.length - 1];
+
 const feed = '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<feed xmlns="http://www.w3.org/2005/Atom">\n' +
   '  <title>OpenCSG 模型价格实测</title>\n' +
   '  <id>' + esc(BASE) + 'feed.xml</id>\n' +
   '  <link rel="alternate" href="' + esc(BASE) + '" />\n' +
   '  <link rel="self" href="' + esc(BASE) + 'feed.xml" />\n' +
-  '  <updated>' + esc(gw.as_of) + 'T00:00:00Z</updated>\n' +
+  '  <updated>' + esc(feedUpdated) + 'T00:00:00Z</updated>\n' +
   '  <author><name>happy520ai</name></author>\n' +
   '  <rights>本页含个人邀请码利益披露；所有数字来自免登录重放，引用前请自行复核</rights>\n' +
   entries +
@@ -81,7 +87,7 @@ const feed = '<?xml version="1.0" encoding="UTF-8"?>\n' +
 
 // 结构自检：feed 级 <updated> 必须等于最新 entry 的日期，否则说明排序或日期取错。
 const ups = [...feed.matchAll(/<updated>([^<]+)<\/updated>/g)].map(m => m[1]).sort();
-if (ups[ups.length - 1] !== esc(gw.as_of) + 'T00:00:00Z') {
+if (ups[ups.length - 1] !== esc(feedUpdated) + 'T00:00:00Z') {
   throw new Error('REFUSED: feed 级 updated 不等于最新 entry 的日期（' + ups.join(',') + '）');
 }
 const OUT = fileURLToPath(new URL('./feed.xml', import.meta.url));
