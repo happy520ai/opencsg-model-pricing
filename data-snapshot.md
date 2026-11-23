@@ -1,18 +1,18 @@
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-11-22　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+核查日期：2026-11-23　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
 重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **21** 条，其中 **17** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
 |---|---|---|---|
 | text-embedding-3-small | 0.16 | 0.16 | - |
 | OpenCSG/Agentic-27B | 0.35 | 1 | OpenCSG/Agentic-27B |
+| autotrust/JEV-27B-VL | 0.5 | - | autotrust/JEV-27B-VL |
 | qwen3-rerank | 0.55 | 0.55 | - |
 | glm-5.3-flash | 0.88 | 3.08 | zai-org/GLM-5.3-Flash |
 | qwen3.8-flash | 0.88 | 2.97 | - |
 | deepseek-v4.1-flash-1017 | 1.1 | 4.4 | deepseek-ai/DeepSeek-V4.1-Flash-1017 |
 | MiniMax-M2.5 | 2.31 | 9.24 | MiniMaxAI/MiniMax-M2.5 |
-| autotrust/JEV-27B-VL | 2.499877506002206 | - | autotrust/JEV-27B-VL |
 | qwen3.7-plus | 4.4 | 17.6 | - |
 | kimi-k2.5 | 4.4 | 23.1 | moonshotai/Kimi-K2.5 |
 | deepseek-v4-pro | 4.95 | 14.85 | deepseek-ai/DeepSeek-V4-Pro-0813 |
