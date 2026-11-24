@@ -1,7 +1,7 @@
 # OpenCSG 可调模型与价格（实测快照）
 
-核查日期：2026-11-23　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
-重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **21** 条，其中 **17** 条带输入价。
+核查日期：2026-11-24　来源：`https://ai.space.opencsg.com/v1/models`（免登录 GET）
+重放方式：`curl -s https://ai.space.opencsg.com/v1/models`　本次返回 **22** 条，其中 **18** 条带输入价。
 
 | 模型 id | 输入 元/百万 token | 输出 元/百万 token | 上游仓库 |
 |---|---|---|---|
@@ -11,6 +11,7 @@
 | qwen3-rerank | 0.55 | 0.55 | - |
 | glm-5.3-flash | 0.88 | 3.08 | zai-org/GLM-5.3-Flash |
 | qwen3.8-flash | 0.88 | 2.97 | - |
+| JasonChiang1916/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF | 1 | 4 | - |
 | deepseek-v4.1-flash-1017 | 1.1 | 4.4 | deepseek-ai/DeepSeek-V4.1-Flash-1017 |
 | MiniMax-M2.5 | 2.31 | 9.24 | MiniMaxAI/MiniMax-M2.5 |
 | qwen3.7-plus | 4.4 | 17.6 | - |
